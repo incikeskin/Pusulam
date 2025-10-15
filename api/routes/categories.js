@@ -4,6 +4,8 @@ const Categories = require("../db/models/Categories");
 const Response = require("../lib/Response");
 const CustomError= require("../lib/Error")
 const Enum = require("../config/Enum");
+const AuditLogs = require('../lib/AuditLogs');
+const logger = require('../lib/logger/LoggerClass');
 
 /* GET users listing. */
 router.get('/', async(req, res, next)=> {
@@ -28,8 +30,13 @@ router.post('/add', async(req, res)=>{
       created_by: req.user?.id
     });
     await category.save();
+
+    AuditLogs.info(req.user?.email, "Categories", "Add", category );
+    logger.info(req.user?.email, "Categories", "Add", category);
+
     res.json(Response.successResponse({success: true}));
   } catch(err) {
+    logger.error(req.user?.email, "Categories", "Add", err);
     let errorReponse = Response.errorReponse(err);
     res.status(errorReponse.code).json(errorReponse);
   }
@@ -46,6 +53,9 @@ router.post("/update", async(req,res)=> {
     if (typeof body.is_active === "boolean") updates.is_active= body.is_active;
 
     await Categories.updateOne({_id: body._id},updates);
+
+    AuditLogs.info(req.user?.email, "Categories", "Update", {_id: body._id, ...updates} );
+
     res.json(Response.successResponse({success: true}));
 
   } catch(err) {
@@ -61,6 +71,8 @@ router.post("/delete", async(req, res)=> {
     if(!body._id) throw new CustomError(Enum.HTTP_CODES.BAD_REQUEST,"Validation error", "_id fields must be filled");
 
     await Categories.findByIdAndDelete(_id);
+
+    AuditLogs.info(req.user?.email, "Categories", "Delete", {_id: body._id} );
 
     res.json(Response.successResponse({success: true}));
     

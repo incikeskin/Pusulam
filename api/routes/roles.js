@@ -74,7 +74,7 @@ router.post("/update", async (req, res) => {
                 for (let i = 0; i < newPermissions.length; i++) {
                     let priv = new RolePrivileges({
                         role_id: body._id,
-                        permission: newPermissions,
+                        permission: newPermissions[i],
                         created_by: req.user?.id
                     });
                     await priv.save();
