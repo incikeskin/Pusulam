@@ -10,7 +10,7 @@ class Response{
             data
         }
     }
-    static errorReponse(error) {
+    static errorResponse(error) {
         console.error(error);
         if(error instanceof CustomError)
         {
