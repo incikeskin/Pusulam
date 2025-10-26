@@ -12,6 +12,94 @@ const UserRoles = require('../db/models/UserRoles');
 const auth = require("../lib/auth")();
 
 
+router.post("/register", async (req, res) => {
+  let body = req.body;
+  try {
+    let user = await Users.findOne({});
+     /* if (user) {
+      return res.sendStatus(Enum.HTTP_CODES.NOT_FOUND);
+    } */
+
+    if (!body.email) throw new CustomError(Enum.HTTP_CODES.BAD_REQUEST, "Validation Error", "email field must be filled");
+
+    if (!body.password) throw new CustomError(Enum.HTTP_CODES.BAD_REQUEST, "Validation Error", "password field must be filled");
+
+    if (body.password.length < Enum.PASS_LENGTH) {
+      throw new CustomError(Enum.HTTP_CODES.BAD_REQUEST, "Validation Error", "password length must be greater than", Enum.PASS_LENGTH);
+    }
+
+    let password = bcrypt.hashSync(body.password, bcrypt.genSaltSync(8), null);
+
+
+    let createdUser = await Users.create({
+      email: body.email,
+      password,
+      is_active: true,
+      first_name: body.first_name,
+      last_name: body.last_name,
+      phone_number: body.phone_number
+    });
+
+    let role = await Roles.create({
+      role_name: "SUPER_ADMIN",
+      is_active: true,
+      created_by: createdUser._id
+    });
+
+    await UserRoles.create({
+      role_id: role._id,
+      user_id: createdUser._id
+    });
+
+    res.status(Enum.HTTP_CODES.CREATED).json(Response.successResponse({ success: true }, Enum.HTTP_CODES.CREATED));
+
+  } catch (err) {
+    let errorReponse = Response.errorReponse(err);
+    res.status(errorReponse.code).json(errorReponse);
+  }
+})
+
+router.post("/auth", async (req, res) => {
+  try {
+
+    let { email, password } = req.body;
+
+    Users.validateFieldsBeforeAuth(email, password);
+
+    let user = await Users.findOne({ email });
+
+    console.log("User from DB:", user);  // Kullanıcı Mongo’dan geldi mi?
+    console.log("Password valid:", user?.validPassword(password));
+
+    if (!user) throw new CustomError(Enum.HTTP_CODES.UNAUTHORIZED, "Validation error", "email or password wrong");
+
+    if (!user.validPassword(password)) throw new CustomError(Enum.HTTP_CODES.UNAUTHORIZED, "validation error", "Email or password wrong");
+
+    let payload = {
+      id: user._id,
+      exp: parseInt(Date.now() / 1000) + config.JWT.EXPIRE_TIME
+    }
+
+    let token = jwt.encode(payload, config.JWT.SECRET);
+
+    let userData = {
+      _id: user._id,
+      first_name: user.first_name,
+      last_name: user.last_name
+    }
+
+    res.json(Response.successResponse({ token, user: userData }));
+
+  } catch (err) {
+    let errorResponse = Response.errorResponse(err);
+    res.status(errorResponse.code).json(errorResponse);
+  }
+})
+
+router.all("*", auth.authenticate(), (req, res, next) => {
+  next();
+});
+
 /* GET users listing. */
 router.get('/', async (req, res, next) => {
   try {
@@ -134,93 +222,7 @@ router.post("/delete", async (req, res) => {
 })
 
 
-router.post("/register", async (req, res) => {
-  let body = req.body;
-  try {
-    let user = await Users.findOne({});
-     /* if (user) {
-      return res.sendStatus(Enum.HTTP_CODES.NOT_FOUND);
-    } */
 
-    if (!body.email) throw new CustomError(Enum.HTTP_CODES.BAD_REQUEST, "Validation Error", "email field must be filled");
-
-    if (!body.password) throw new CustomError(Enum.HTTP_CODES.BAD_REQUEST, "Validation Error", "password field must be filled");
-
-    if (body.password.length < Enum.PASS_LENGTH) {
-      throw new CustomError(Enum.HTTP_CODES.BAD_REQUEST, "Validation Error", "password length must be greater than", Enum.PASS_LENGTH);
-    }
-
-    let password = bcrypt.hashSync(body.password, bcrypt.genSaltSync(8), null);
-
-
-    let createdUser = await Users.create({
-      email: body.email,
-      password,
-      is_active: true,
-      first_name: body.first_name,
-      last_name: body.last_name,
-      phone_number: body.phone_number
-    });
-
-    let role = await Roles.create({
-      role_name: "SUPER_ADMIN",
-      is_active: true,
-      created_by: createdUser._id
-    });
-
-    await UserRoles.create({
-      role_id: role._id,
-      user_id: createdUser._id
-    });
-
-    res.status(Enum.HTTP_CODES.CREATED).json(Response.successResponse({ success: true }, Enum.HTTP_CODES.CREATED));
-
-  } catch (err) {
-    let errorReponse = Response.errorReponse(err);
-    res.status(errorReponse.code).json(errorReponse);
-  }
-})
-
-router.post("/auth", async (req, res) => {
-  try {
-
-    let { email, password } = req.body;
-
-    Users.validateFieldsBeforeAuth(email, password);
-
-    let user = await Users.findOne({ email });
-
-    console.log("User from DB:", user);  // Kullanıcı Mongo’dan geldi mi?
-    console.log("Password valid:", user?.validPassword(password));
-
-    if (!user) throw new CustomError(Enum.HTTP_CODES.UNAUTHORIZED, "Validation error", "email or password wrong");
-
-    if (!user.validPassword(password)) throw new CustomError(Enum.HTTP_CODES.UNAUTHORIZED, "validation error", "Email or password wrong");
-
-    let payload = {
-      id: user._id,
-      exp: parseInt(Date.now() / 1000) + config.JWT.EXPIRE_TIME
-    }
-
-    let token = jwt.encode(payload, config.JWT.SECRET);
-
-    let userData = {
-      _id: user._id,
-      first_name: user.first_name,
-      last_name: user.last_name
-    }
-
-    res.json(Response.successResponse({ token, user: userData }));
-
-  } catch (err) {
-    let errorResponse = Response.errorResponse(err);
-    res.status(errorResponse.code).json(errorResponse);
-  }
-})
-
-router.all("*", auth.authenticate(), (req, res, next) => {
-  next();
-});
 
 
 
