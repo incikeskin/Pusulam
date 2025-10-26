@@ -138,9 +138,9 @@ router.post("/register", async (req, res) => {
   let body = req.body;
   try {
     let user = await Users.findOne({});
-    if (user) {
+     /* if (user) {
       return res.sendStatus(Enum.HTTP_CODES.NOT_FOUND);
-    }
+    } */
 
     if (!body.email) throw new CustomError(Enum.HTTP_CODES.BAD_REQUEST, "Validation Error", "email field must be filled");
 

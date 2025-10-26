@@ -4,7 +4,7 @@ const schema = mongoose.Schema({
     student: { type: mongoose.SchemaTypes.ObjectId, ref: "users", required: true },          // Öğrenci
     assignment: { type: mongoose.SchemaTypes.ObjectId, ref: "assignments", required: true }, // Ödev
     question: { type: mongoose.SchemaTypes.ObjectId, ref: "questions", required: true },     // Soru
-    selected_option: { type: mongoose.SchemaTypes.ObjectId, ref: "options" },                // Öğrencinin seçtiği şık
+    selected_option: { type: mongoose.SchemaTypes.ObjectId, ref: "options" },                // Öğrencinin seçtiği 
     is_correct: { type: Boolean },                                                           // Doğru mu yanlış mı
     answered_at: { type: Date, default: Date.now }                                           // Cevap tarihi
 }, {
