@@ -1,6 +1,9 @@
 var express = require("express");
 var router = express.Router();
 const Assignments = require("../db/models/Assignments");
+const AssignmentQuestions = require("../db/models/AssignmentQuestions");
+const Options = require("../db/models/Options");
+const Questions = require("../db/models/Questions");
 const Users = require("../db/models/Users");
 const Classes = require("../db/models/Classes");
 const Response = require("../lib/Response");
@@ -106,6 +109,51 @@ router.get("/list-by-class/:classId", async (req, res) => {
       .populate("class", "name");
 
     res.json(Response.successResponse(assignments));
+  } catch (err) {
+    const errorResponse = Response.errorResponse(err);
+    res.status(errorResponse.code).json(errorResponse);
+  }
+});
+
+// ✅ 6. Ödevin içindeki tüm soruları ve şıkları getir
+router.get("/:assignmentId/full", async (req, res) => {
+  try {
+    const assignmentId = req.params.assignmentId;
+
+    // 1️⃣ Ödev bilgilerini bul
+    const assignment = await Assignments.findById(assignmentId)
+      .select("title description due_date class teacher")
+      .populate("class", "name")
+      .populate("teacher", "first_name last_name");
+
+    if (!assignment)
+      throw new CustomError(Enum.HTTP_CODES.NOT_FOUND, "Not Found", "Assignment not found");
+
+    // 2️⃣ Ödeve ait soruları getir
+    const assignmentQuestions = await AssignmentQuestions.find({ assignment: assignmentId })
+      .populate("question");
+
+    // 3️⃣ Her sorunun şıklarını getir
+    const questionsWithOptions = await Promise.all(
+      assignmentQuestions.map(async (aq) => {
+        const options = await Options.find({ question: aq.question._id }).select("text is_correct image");
+        return {
+          _id: aq.question._id,
+          text: aq.question.text,
+          image: aq.question.image,
+          difficulty: aq.question.difficulty,
+          options
+        };
+      })
+    );
+
+    // 4️⃣ Sonuç döndür
+    res.json(
+      Response.successResponse({
+        assignment,
+        questions: questionsWithOptions
+      })
+    );
   } catch (err) {
     const errorResponse = Response.errorResponse(err);
     res.status(errorResponse.code).json(errorResponse);
