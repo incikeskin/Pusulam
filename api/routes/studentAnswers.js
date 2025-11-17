@@ -16,7 +16,7 @@ router.all("*", auth.authenticate(), (req, res, next) => {
 });
 
 
-// ✅ 1. Cevap ekle
+//  Cevap ekle
 router.post("/add", async (req, res) => {
   try {
     const body = req.body;
@@ -72,7 +72,7 @@ router.post("/add", async (req, res) => {
 });
 
 
-// ✅ 2. Cevap sil
+// Cevap sil
 router.post("/delete", async (req, res) => {
   try {
     const body = req.body;
@@ -90,7 +90,7 @@ router.post("/delete", async (req, res) => {
 });
 
 
-// ✅ 3. Öğrencinin bir ödevdeki tüm cevaplarını getir
+//Öğrencinin bir ödevdeki tüm cevaplarını getir
 router.get("/list-by-student/:assignmentId/:studentId", async (req, res) => {
   try {
     const { assignmentId, studentId } = req.params;
@@ -110,7 +110,7 @@ router.get("/list-by-student/:assignmentId/:studentId", async (req, res) => {
 });
 
 
-// ✅ 4. Öğrencinin ödev sonucunu getir (doğru, yanlış, yüzde)
+//  Öğrencinin ödev sonucunu getir (doğru, yanlış, yüzde)
 router.get("/result/:assignmentId/:studentId", async (req, res) => {
   try {
     const { assignmentId, studentId } = req.params;
@@ -139,5 +139,56 @@ router.get("/result/:assignmentId/:studentId", async (req, res) => {
     res.status(errorResponse.code).json(errorResponse);
   }
 });
+
+//  Belirli bir sınıftaki öğrencinin tüm ödevlerinden genel rating hesapla
+router.get("/overall-rating/:classId/:studentId", async (req, res) => {
+  try {
+    const { classId, studentId } = req.params;
+
+    // 1️⃣ O sınıfa verilen tüm ödevleri getir
+    const assignments = await Assignments.find({ class: classId }).select("_id");
+    if (!assignments.length)
+      throw new CustomError(Enum.HTTP_CODES.NOT_FOUND, "Not Found", "No assignments found for this class");
+
+    const assignmentIds = assignments.map(a => a._id);
+
+    // 2️⃣ O ödevlerdeki tüm soruları getir
+    const assignmentQuestions = await AssignmentQuestions.find({
+      assignment: { $in: assignmentIds }
+    }).select("assignment question");
+
+    const totalQuestions = assignmentQuestions.length;
+
+    // 3️⃣ Öğrencinin verdiği cevapları getir (sadece bu ödevler için)
+    const studentAnswers = await StudentAnswers.find({
+      assignment: { $in: assignmentIds },
+      student: studentId
+    }).select("assignment question is_correct");
+
+    // 4️⃣ Doğru sayısını hesapla
+    let totalCorrect = 0;
+    assignmentQuestions.forEach(aq => {
+      const answer = studentAnswers.find(sa => sa.question.toString() === aq.question.toString());
+      if (answer && answer.is_correct) totalCorrect += 1;
+      // cevap yoksa zaten yanlış sayılıyor
+    });
+
+    const scorePercent = totalQuestions > 0 ? Math.round((totalCorrect / totalQuestions) * 100) : 0;
+
+    res.json(Response.successResponse({
+      student: studentId,
+      class: classId,
+      totalQuestions,
+      totalCorrect,
+      totalIncorrect: totalQuestions - totalCorrect,
+      score_percent: scorePercent
+    }));
+
+  } catch (err) {
+    const errorResponse = Response.errorResponse(err);
+    res.status(errorResponse.code).json(errorResponse);
+  }
+});
+
 
 module.exports = router;

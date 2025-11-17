@@ -13,7 +13,7 @@ router.all("*", auth.authenticate(), (req, res, next) => {
   next();
 });
 
-// ✅ 1. Tüm öğrenci-sınıf kayıtlarını listele
+
 router.get("/", async (req, res) => {
   try {
     const studentClasses = await StudentClasses.find({})
@@ -26,7 +26,7 @@ router.get("/", async (req, res) => {
   }
 });
 
-// ✅ 2. Öğrenciyi sınıfa ekle
+
 router.post("/add", async (req, res) => {
   try {
     const body = req.body;
@@ -53,7 +53,7 @@ router.post("/add", async (req, res) => {
   }
 });
 
-// ✅ 3. Öğrenciyi sınıftan çıkar
+
 router.post("/delete", async (req, res) => {
   try {
     const body = req.body;
@@ -70,7 +70,7 @@ router.post("/delete", async (req, res) => {
   }
 });
 
-// ✅ 4. Belirli bir sınıftaki öğrencileri listele
+// Belirli bir sınıftaki öğrencileri listele
 router.get("/list-by-class/:classId", async (req, res) => {
   try {
     const classId = req.params.classId;

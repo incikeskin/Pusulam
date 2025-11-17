@@ -24,4 +24,31 @@ export const loginUser = createAsyncThunk<
   }
 });
 
+// REGISTER thunk
+export const registerUser = createAsyncThunk<
+  { success: boolean },                                // resolve tipi
+  {
+    first_name: string;
+    last_name: string;
+    email: string;
+    password: string;
+    phone_number?: string;
+  },                                                   // input tipi
+  { rejectValue: string }                              // hata tipi
+>("auth/registerUser", async (formData, { rejectWithValue }) => {
+  try {
+    const response = await axiosInstance.post("/api/users/register", formData);
+
+    // backend: { success: true } dönüyor
+    return { success: true };
+  } catch (err: unknown) {
+    if (isAxiosError(err)) {
+      const axiosErr = err as AxiosError<{ message: string }>;
+      return rejectWithValue(
+        axiosErr.response?.data?.message || "Register failed"
+      );
+    }
+    return rejectWithValue("Register failed");
+  }
+});
 

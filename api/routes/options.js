@@ -12,7 +12,7 @@ router.all("*", auth.authenticate(), (req, res, next) => {
   next();
 });
 
-// ✅ 1. Tüm seçenekleri listele
+// Tüm seçenekleri listele
 router.get("/", async (req, res) => {
   try {
     const records = await Options.find({})
@@ -25,7 +25,7 @@ router.get("/", async (req, res) => {
   }
 });
 
-// ✅ 2. Yeni bir şık ekle
+// Yeni bir şık ekle
 router.post("/add", async (req, res) => {
   try {
     const body = req.body;
@@ -49,7 +49,7 @@ router.post("/add", async (req, res) => {
   }
 });
 
-// ✅ 3. Şık güncelle
+// Şık güncelle
 router.post("/update", async (req, res) => {
   try {
     const body = req.body;
@@ -78,7 +78,7 @@ router.post("/update", async (req, res) => {
   }
 });
 
-// ✅ 4. Şık sil
+//  Şık sil
 router.post("/delete", async (req, res) => {
   try {
     const body = req.body;
@@ -95,7 +95,7 @@ router.post("/delete", async (req, res) => {
   }
 });
 
-// ✅ 5. Belirli bir soruya ait şıkları listele
+// Belirli bir soruya ait şıkları listele
 router.get("/list-by-question/:questionId", async (req, res) => {
   try {
     const questionId = req.params.questionId;

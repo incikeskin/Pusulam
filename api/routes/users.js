@@ -13,51 +13,86 @@ const auth = require("../lib/auth")();
 
 
 router.post("/register", async (req, res) => {
-  let body = req.body;
+  const body = req.body;
+
   try {
-    let user = await Users.findOne({});
-     /* if (user) {
-      return res.sendStatus(Enum.HTTP_CODES.NOT_FOUND);
-    } */
+    // Zorunlu alan kontrolleri
+    if (!body.email)
+      throw new CustomError(
+        Enum.HTTP_CODES.BAD_REQUEST,
+        "Validation Error",
+        "email field must be filled"
+      );
 
-    if (!body.email) throw new CustomError(Enum.HTTP_CODES.BAD_REQUEST, "Validation Error", "email field must be filled");
+    if (!body.password)
+      throw new CustomError(
+        Enum.HTTP_CODES.BAD_REQUEST,
+        "Validation Error",
+        "password field must be filled"
+      );
 
-    if (!body.password) throw new CustomError(Enum.HTTP_CODES.BAD_REQUEST, "Validation Error", "password field must be filled");
+    if (body.password.length < Enum.PASS_LENGTH)
+      throw new CustomError(
+        Enum.HTTP_CODES.BAD_REQUEST,
+        "Validation Error",
+        `password length must be greater than ${Enum.PASS_LENGTH}`
+      );
 
-    if (body.password.length < Enum.PASS_LENGTH) {
-      throw new CustomError(Enum.HTTP_CODES.BAD_REQUEST, "Validation Error", "password length must be greater than", Enum.PASS_LENGTH);
-    }
+    // Email kontrolü
+    const existingUser = await Users.findOne({ email: body.email });
+    if (existingUser)
+      throw new CustomError(
+        Enum.HTTP_CODES.CONFLICT,
+        "Validation Error",
+        "Email already registered"
+      );
 
-    let password = bcrypt.hashSync(body.password, bcrypt.genSaltSync(8), null);
+    // Şifre hash
+    const hashedPassword = bcrypt.hashSync(
+      body.password,
+      bcrypt.genSaltSync(8),
+      null
+    );
 
-
-    let createdUser = await Users.create({
+    // Kullanıcı oluştur
+    const createdUser = await Users.create({
       email: body.email,
-      password,
+      password: hashedPassword,
       is_active: true,
       first_name: body.first_name,
       last_name: body.last_name,
-      phone_number: body.phone_number
+      phone_number: body.phone_number,
     });
 
-    let role = await Roles.create({
-      role_name: "SUPER_ADMIN",
-      is_active: true,
-      created_by: createdUser._id
-    });
+    // Rol belirle (frontend’den veya default: student)
+    const roleName = (body.role || "student").toLowerCase();
 
+    // Rolü bul veya oluştur
+    let role = await Roles.findOne({ role_name: roleName });
+    if (!role) {
+      role = await Roles.create({
+        role_name: roleName,
+        is_active: true,
+        created_by: createdUser._id,
+      });
+    }
+
+    // UserRole ilişkisi oluştur
     await UserRoles.create({
       role_id: role._id,
-      user_id: createdUser._id
+      user_id: createdUser._id,
     });
 
-    res.status(Enum.HTTP_CODES.CREATED).json(Response.successResponse({ success: true }, Enum.HTTP_CODES.CREATED));
-
+    // Başarılı yanıt
+    res
+      .status(Enum.HTTP_CODES.CREATED)
+      .json(Response.successResponse({ success: true }, Enum.HTTP_CODES.CREATED));
   } catch (err) {
-    let errorReponse = Response.errorReponse(err);
-    res.status(errorReponse.code).json(errorReponse);
+    const errorResponse = Response.errorResponse(err);
+    res.status(errorResponse.code).json(errorResponse);
   }
-})
+});
+
 
 router.post("/auth", async (req, res) => {
   try {
@@ -177,8 +212,8 @@ router.post("/update", async (req, res) => {
     if (Array.isArray(body.roles) && body.roles.length > 0) {
       let userRoles = await UserRoles.find({ user_id: body._id });
 
-      let removedRoles = userRoles.filter(x => !body.roles .includes(x.role_id ));
-      let newRoles  = body.roles.filter(x => !userRoles.map(r => r.role_id).includes(x));
+      let removedRoles = userRoles.filter(x => !body.roles.includes(x.role_id));
+      let newRoles = body.roles.filter(x => !userRoles.map(r => r.role_id).includes(x));
 
       if (removedRoles.length > 0) {
         await UserRoles.deleteMany({ _id: { $in: removedRoles.map(x => x._id) } });
@@ -212,7 +247,7 @@ router.post("/delete", async (req, res) => {
 
     await Users.deleteOne({ _id: body._id });
 
-    await UserRoles.deleteMany({ user_id: body._id});
+    await UserRoles.deleteMany({ user_id: body._id });
 
     res.json(Response.successResponse({ success: true }));
 

@@ -13,7 +13,7 @@ router.all("*", auth.authenticate(), (req, res, next) => {
   next();
 });
 
-// ✅ 1. Tüm assignment-question kayıtlarını listele
+//  Tüm assignment-question kayıtlarını listele
 router.get("/", async (req, res) => {
   try {
     const records = await AssignmentQuestions.find({})
@@ -27,7 +27,7 @@ router.get("/", async (req, res) => {
   }
 });
 
-// ✅ 2. Ödeve soru ekle
+// Ödeve soru ekle
 router.post("/add", async (req, res) => {
   try {
     const body = req.body;
@@ -57,7 +57,7 @@ router.post("/add", async (req, res) => {
   }
 });
 
-// ✅ 3. Kayıt sil (ödev-soru ilişkisini kaldır)
+// Kayıt sil (ödev-soru ilişkisini kaldır)
 router.post("/delete", async (req, res) => {
   try {
     const body = req.body;
@@ -74,7 +74,7 @@ router.post("/delete", async (req, res) => {
   }
 });
 
-// ✅ 4. Belirli bir ödevdeki tüm soruları listele
+//Belirli bir ödevdeki tüm soruları listele
 router.get("/list-by-assignment/:assignmentId", async (req, res) => {
   try {
     const assignmentId = req.params.assignmentId;

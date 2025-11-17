@@ -16,7 +16,7 @@ router.all("*", auth.authenticate(), (req, res, next) => {
   next();
 });
 
-// ✅ 1. Tüm ödevleri listele
+// Tüm ödevleri listele
 router.get("/", async (req, res) => {
   try {
     const assignments = await Assignments.find({})
@@ -29,7 +29,7 @@ router.get("/", async (req, res) => {
   }
 });
 
-// ✅ 2. Ödev ekle
+// Ödev ekle
 router.post("/add", async (req, res) => {
   try {
     const body = req.body;
@@ -57,7 +57,7 @@ router.post("/add", async (req, res) => {
   }
 });
 
-// ✅ 3. Ödev güncelle
+// Ödev güncelle
 router.post("/update", async (req, res) => {
   try {
     const body = req.body;
@@ -82,7 +82,7 @@ router.post("/update", async (req, res) => {
   }
 });
 
-// ✅ 4. Ödev sil
+// Ödev sil
 router.post("/delete", async (req, res) => {
   try {
     const body = req.body;
@@ -99,7 +99,7 @@ router.post("/delete", async (req, res) => {
   }
 });
 
-// ✅ 5. Sınıfa göre ödevleri listele
+// Sınıfa göre ödevleri listele
 router.get("/list-by-class/:classId", async (req, res) => {
   try {
     const classId = req.params.classId;
@@ -115,12 +115,12 @@ router.get("/list-by-class/:classId", async (req, res) => {
   }
 });
 
-// ✅ 6. Ödevin içindeki tüm soruları ve şıkları getir
+// Ödevin içindeki tüm soruları ve şıkları getir
 router.get("/:assignmentId/full", async (req, res) => {
   try {
     const assignmentId = req.params.assignmentId;
 
-    // 1️⃣ Ödev bilgilerini bul
+    // Ödev bilgilerini bul
     const assignment = await Assignments.findById(assignmentId)
       .select("title description due_date class teacher")
       .populate("class", "name")
@@ -129,11 +129,11 @@ router.get("/:assignmentId/full", async (req, res) => {
     if (!assignment)
       throw new CustomError(Enum.HTTP_CODES.NOT_FOUND, "Not Found", "Assignment not found");
 
-    // 2️⃣ Ödeve ait soruları getir
+    // Ödeve ait soruları getir
     const assignmentQuestions = await AssignmentQuestions.find({ assignment: assignmentId })
       .populate("question");
 
-    // 3️⃣ Her sorunun şıklarını getir
+    //Her sorunun şıklarını getir
     const questionsWithOptions = await Promise.all(
       assignmentQuestions.map(async (aq) => {
         const options = await Options.find({ question: aq.question._id }).select("text is_correct image");
@@ -147,7 +147,7 @@ router.get("/:assignmentId/full", async (req, res) => {
       })
     );
 
-    // 4️⃣ Sonuç döndür
+    // Sonuç döndür
     res.json(
       Response.successResponse({
         assignment,

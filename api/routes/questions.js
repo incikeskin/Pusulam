@@ -12,7 +12,7 @@ router.all("*", auth.authenticate(), (req, res, next) => {
   next();
 });
 
-// ✅ 1. Tüm soruları listele
+// Tüm soruları listele
 router.get("/", async (req, res) => {
   try {
     const questions = await Questions.find({})
@@ -24,7 +24,7 @@ router.get("/", async (req, res) => {
   }
 });
 
-// ✅ 2. Soru ekle
+//  Soru ekle
 router.post("/add", async (req, res) => {
   try {
     const body = req.body;
@@ -47,7 +47,7 @@ router.post("/add", async (req, res) => {
   }
 });
 
-// ✅ 3. Soru güncelle
+// Soru güncelle
 router.post("/update", async (req, res) => {
   try {
     const body = req.body;
@@ -71,7 +71,7 @@ router.post("/update", async (req, res) => {
   }
 });
 
-// ✅ 4. Soru sil
+// Soru sil
 router.post("/delete", async (req, res) => {
   try {
     const body = req.body;
@@ -88,7 +88,7 @@ router.post("/delete", async (req, res) => {
   }
 });
 
-// ✅ 5. Kategoriye göre soruları listele
+// Kategoriye göre soruları listele
 router.get("/list-by-category/:categoryId", async (req, res) => {
   try {
     const categoryId = req.params.categoryId;

@@ -11,7 +11,7 @@ router.all("*", auth.authenticate(), (req, res, next) => {
   next();
 });
 
-// ✅ 1. Tüm sınıfları listele
+
 router.get("/", async (req, res) => {
   try {
     const classes = await Classes.find({})
@@ -23,7 +23,7 @@ router.get("/", async (req, res) => {
   }
 });
 
-// ✅ 2. Yeni sınıf ekle
+
 router.post("/add", async (req, res) => {
   try {
     const body = req.body;
@@ -50,7 +50,7 @@ router.post("/add", async (req, res) => {
   }
 });
 
-// ✅ 3. Sınıf güncelle
+
 router.post("/update", async (req, res) => {
   try {
     const body = req.body;
@@ -75,7 +75,7 @@ router.post("/update", async (req, res) => {
   }
 });
 
-// ✅ 4. Sınıf sil
+
 router.post("/delete", async (req, res) => {
   try {
     const body = req.body;
