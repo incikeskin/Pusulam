@@ -115,7 +115,7 @@ router.get("/list-by-class/:classId", async (req, res) => {
   }
 });
 
-// Ödevin içindeki tüm soruları ve şıkları getir
+
 router.get("/:assignmentId/full", async (req, res) => {
   try {
     const assignmentId = req.params.assignmentId;

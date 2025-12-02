@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import axios from "axios";
+import LandingPage from "./components/LandingPage";
 
 export default function Home() {
   const [data, setData] = useState<string>("");
@@ -12,11 +13,7 @@ export default function Home() {
       .catch(err => console.error("API bağlantı hatası:", err));
   }, []);
 
-  return (
-    <main className="flex flex-col items-center justify-center min-h-screen p-4">
-      <h1 className="text-2xl font-bold mb-4">Next.js → Express Bağlantı Testi</h1>
-      <p className="text-lg">{data || "Bağlantı kuruluyor..."}</p>
-    </main>
-  );
+  return  <LandingPage />;
+  
 }
 
