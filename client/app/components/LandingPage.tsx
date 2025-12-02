@@ -3,6 +3,7 @@ import React from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 
+
 type Feature = {
     title: string
     desc: string
@@ -24,20 +25,22 @@ export default function LandingPage(): React.ReactNode {
                 <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
                     <Link href="/" className="flex items-center gap-3">
                         <Image src="/images/pusulam_logo.png"
-                        alt="Pusulam Logo"
-                        width={40}
-                        height={40}
-                        className="object-contain"
+                            alt="Pusulam Logo"
+                            width={40}
+                            height={40}
+                            className="object-contain"
                         />
-                        <div className="font-semibold text-lg">Pusulam</div>
+                        <div className={`font-sans font-bold text-2xl text-[#1087BB]`}>
+                            Pusulam
+                        </div>
                     </Link>
 
                     <nav className="hidden md:flex items-center gap-6 text-sm">
-                        <Link href="#features" className="hover:underline transition">Özellikler</Link>
-                        <Link href="#roles" className="hover:underline transition">Roller</Link>
-                        <Link href="#about" className="hover:underline transition">Hakkında</Link>
+                        <Link href="#features" className="hover:text-[#1087BB] transition">Özellikler</Link>
+                        <Link href="#roles" className="hover:text-[#1087BB] transition">Roller</Link>
+                        <Link href="#about" className="hover:text-[#1087BB] transition">Hakkında</Link>
                         <Link href="/login" className="px-4 py-2 rounded-md border border-slate-200 hover:bg-slate-50 transition">Giriş</Link>
-                        <Link href="/register" className="px-4 py-2 rounded-md bg-indigo-600 text-white hover:bg-indigo-700 transition">Kayıt Ol</Link>
+                        <Link href="/register" className="px-4 py-2 rounded-md bg-[#1087BB] text-white hover:bg-indigo-700 transition">Kayıt Ol</Link>
                     </nav>
 
                     <div className="md:hidden">
@@ -51,12 +54,12 @@ export default function LandingPage(): React.ReactNode {
                 <section className="max-w-6xl mx-auto px-6 py-16 flex flex-col-reverse lg:flex-row items-center gap-12">
                     <div className="lg:w-1/2">
                         <h1 className="text-4xl md:text-5xl font-extrabold leading-tight">
-                            Öğrenci başarı takibini <span className="text-indigo-600">kolaylaştır</span>
+                            Öğrenci başarı takibini <span className="text-[#1087BB]">kolaylaştır</span>
                         </h1>
                         <p className="mt-4 text-slate-600">Öğrenciler, veliler ve öğretmenler için kişiselleştirilmiş çalışma planı, görev takibi ve haftalık raporlar.</p>
 
                         <div className="mt-6 flex items-center gap-4 flex-wrap">
-                            <Link href="/register" className="inline-flex items-center gap-2 px-5 py-3 rounded-md bg-indigo-600 text-white font-medium hover:bg-indigo-700 transition transform hover:scale-105 duration-300">
+                            <Link href="/register" className="inline-flex items-center gap-2 px-5 py-3 rounded-md bg-[#1087BB] text-white font-medium hover:bg-indigo-700 transition transform hover:scale-105 duration-300">
                                 Hemen Başla
                             </Link>
                             <Link href="/about" className="text-sm text-slate-600 hover:underline transition">Daha fazla bilgi</Link>
@@ -119,14 +122,14 @@ export default function LandingPage(): React.ReactNode {
                 </section>
 
                 {/* Callout / Demo */}
-                <section className="bg-indigo-600 text-white py-12">
+                <section className="bg-[#1087BB] text-white py-12">
                     <div className="max-w-6xl mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-6">
                         <div>
                             <h3 className="text-2xl font-semibold">Projeyi şimdi dene — ücretsiz</h3>
                             <p className="mt-2 text-indigo-100 text-sm">Hesap oluştur, kendi çalışma planını oluştur ve öğrenci ilerlemeni takip etmeye başla.</p>
                         </div>
                         <div>
-                            <Link href="/register" className="inline-block px-5 py-3 bg-white text-indigo-600 rounded-md font-medium hover:bg-indigo-100 transition transform hover:scale-105">
+                            <Link href="/register" className="inline-block px-5 py-3 bg-white text-[#1087BB] rounded-md font-medium hover:bg-indigo-100 transition transform hover:scale-105">
                                 Kayıt Ol
                             </Link>
                         </div>
@@ -163,7 +166,7 @@ function RoleCard({ title, desc }: { title: string; desc: string }) {
             <div className="text-lg font-semibold">{title}</div>
             <p className="mt-2 text-slate-600 text-sm">{desc}</p>
             <div className="mt-4">
-                <Link href={title === 'Öğrenci' ? '/student' : title === 'Veli' ? '/parent' : '/coach'} className="inline-block px-4 py-2 rounded-md bg-indigo-50 text-indigo-700 text-sm hover:bg-indigo-100 transition">
+                <Link href={title === 'Öğrenci' ? '/student' : title === 'Veli' ? '/parent' : '/coach'} className="inline-block px-4 py-2 rounded-md bg-[#1087BB] text-white text-sm hover:bg-black transition">
                     Paneli Gör
                 </Link>
             </div>
