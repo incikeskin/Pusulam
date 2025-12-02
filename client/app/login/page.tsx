@@ -47,7 +47,7 @@ export default function LoginPage() {
         </motion.div>
 
         <div className="z-10 text-white text-3xl font-bold px-6 text-center">
-          <p>Pusulamın Yönü Daima Başarı!</p>
+          <p>Pusulam Sana Başarıya Giden Yolu Gösterecek!</p>
         </div>
       </div>
 
