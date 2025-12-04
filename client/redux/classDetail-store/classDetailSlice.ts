@@ -37,6 +37,7 @@ const classDetailSlice = createSlice({
       state.error = null;
     });
     builder.addCase(fetchClassInfo.fulfilled, (state, action) => {
+      console.log("STUDENTS PAYLOAD:", action.payload);
       state.loading = false;
       state.info = action.payload;
     });

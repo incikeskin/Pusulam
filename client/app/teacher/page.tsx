@@ -9,7 +9,6 @@ import Link from "next/link";
 
 export default function TeacherPage() {
   const dispatch = useAppDispatch();
-
   const { classes, loading } = useAppSelector((state) => state.teacher);
   const user = useAppSelector((state) => state.auth.user);
 
@@ -18,7 +17,7 @@ export default function TeacherPage() {
   }, [dispatch]);
 
   return (
-    <div className="min-h-screen flex">
+    <div className="min-h-screen flex bg-slate-50 text-slate-900 antialiased">
       {/* Sol panel */}
       <div className="w-1/4 bg-[#1087BB] text-white flex flex-col p-6">
         {/* Profil */}
@@ -30,13 +29,9 @@ export default function TeacherPage() {
             height={80}
             className="rounded-full object-contain mb-2"
           />
-
-          {/* Redux'tan gelen öğretmen adı */}
           <h2 className="text-xl font-bold">
             {user ? `${user.first_name} ${user.last_name}` : "Öğretmen"}
           </h2>
-
-          {/* Gösterimlik branş → backend’den öğretmen branşı gelirse değişeceğiz */}
           <p className="text-sm">{user?.role === "teacher" ? "Öğretmen" : ""}</p>
         </div>
 
@@ -55,29 +50,88 @@ export default function TeacherPage() {
       </div>
 
       {/* Sağ panel */}
-      <div className="flex-1 bg-slate-50 p-6">
-        <h1 className="text-2xl font-bold mb-6 text-[#1087BB]">Sınıflarım</h1>
-
-        {loading && <p>Sınıflar yükleniyor...</p>}
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {classes.map((cls) => (
-            <motion.div
-              key={cls._id}
-              className="bg-white shadow-lg rounded-lg p-4 cursor-pointer hover:scale-105 transition-transform"
-              whileHover={{ scale: 1.05 }}
-            >
-              <Link href={`/teacher/class/${cls._id}`}>
-                <div>
-                  <h2 className="font-bold text-lg text-[#1087BB]">{cls.name}</h2>
-                  <p>Öğrenci Sayısı: 10</p>
-                </div>
+      <div className="flex-1 flex flex-col">
+        {/* Header */}
+        <header className="bg-white shadow sticky top-0 z-50">
+          <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+            <Link href="/" className="flex items-center gap-3">
+              <Image
+                src="/images/pusulam_logo.png"
+                alt="Pusulam Logo"
+                width={40}
+                height={40}
+                className="object-contain"
+              />
+              <div className="font-sans font-bold text-2xl text-[#1087BB]">
+                Pusulam
+              </div>
+            </Link>
+            <nav className="hidden md:flex items-center gap-6 text-sm">
+              <Link href="/" className="hover:text-[#1087BB] transition">
+                Anasayfa
               </Link>
-            </motion.div>
-          ))}
-        </div>
+              <Link href="#about" className="hover:text-[#1087BB] transition">
+                Hakkında
+              </Link>
+            </nav>
+          </div>
+        </header>
+
+        {/* İçerik */}
+        <main className="flex-1 p-6">
+          <h1 className="text-2xl font-bold mb-6 text-[#1087BB]">Sınıflarım</h1>
+
+          {loading && <p>Sınıflar yükleniyor...</p>}
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {classes.map((cls) => (
+              <motion.div
+                key={cls._id}
+                className="bg-white shadow-lg rounded-lg p-4 cursor-pointer hover:scale-105 transition-transform"
+                whileHover={{ scale: 1.05 }}
+              >
+                <Link href={`/teacher/class/${cls._id}`}>
+                  <div>
+                    <h2 className="font-bold text-lg text-[#1087BB]">{cls.name}</h2>
+                    <p>Öğrenci Sayısı: 10</p>
+                  </div>
+                </Link>
+              </motion.div>
+            ))}
+          </div>
+        </main>
+
+        {/* Footer */}
+        <footer className="bg-white border-t mt-12">
+          <div className="max-w-6xl mx-auto px-6 py-6 flex flex-col md:flex-row items-center justify-between gap-4">
+            <div className="text-sm text-slate-600">
+              © {new Date().getFullYear()} Pusulam Başarı Takip — Bitirme Projesi
+            </div>
+            <div className="flex items-center gap-4 flex-wrap">
+              <Link
+                href="/privacy"
+                className="text-sm text-slate-600 hover:underline transition"
+              >
+                Gizlilik
+              </Link>
+              <Link
+                href="/contact"
+                className="text-sm text-slate-600 hover:underline transition"
+              >
+                İletişim
+              </Link>
+              <a
+                href="https://github.com/"
+                target="_blank"
+                rel="noreferrer"
+                className="text-sm text-slate-600 hover:underline transition"
+              >
+                GitHub
+              </a>
+            </div>
+          </div>
+        </footer>
       </div>
     </div>
   );
 }
-

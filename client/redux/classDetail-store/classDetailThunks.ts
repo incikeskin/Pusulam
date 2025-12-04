@@ -10,7 +10,7 @@ import type {
 
 // Base endpoints (senin backend rotalarına göre)
 const CLASSES_BASE = "/api/classes";
-const STUDENT_CLASSES_BASE = "/api/student-classes";
+const STUDENT_CLASSES_BASE = "/api/studentClasses";
 const ASSIGNMENTS_BASE = "/api/assignments";
 
 /**
@@ -47,16 +47,28 @@ export const fetchClassStudents = createAsyncThunk<
 >("classDetail/fetchClassStudents", async (classId, { rejectWithValue }) => {
   try {
     const res = await axiosInstance.get(`${STUDENT_CLASSES_BASE}/list-by-class/${classId}`);
+    
+    // 🔹 Debug log
+    console.log("FETCH CLASS STUDENTS - RES:", res);
+    console.log("FETCH CLASS STUDENTS - RES.DATA:", res.data);
+    
     const payload = res.data?.data ?? res.data;
+
+    // 🔹 Debug log
+    console.log("FETCH CLASS STUDENTS - PAYLOAD:", payload);
+
     return payload as StudentClassRecord[];
   } catch (err: unknown) {
     if (isAxiosError(err)) {
       const axiosErr = err as AxiosError<{ message?: string }>;
+      console.error("FETCH CLASS STUDENTS - AXIOS ERROR:", axiosErr.response?.data);
       return rejectWithValue(axiosErr.response?.data?.message || "Öğrenciler alınamadı");
     }
+    console.error("FETCH CLASS STUDENTS - UNKNOWN ERROR:", err);
     return rejectWithValue("Öğrenciler alınırken bilinmeyen bir hata oluştu");
   }
 });
+
 
 /**
  * 3) Sınıfa verilen ödevler

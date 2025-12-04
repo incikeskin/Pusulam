@@ -24,6 +24,15 @@ const authSlice = createSlice({
       state.user = null;
       state.token = null;
       localStorage.removeItem("token");
+      localStorage.removeItem("user");
+    },
+    initAuth(state) {
+      if (typeof window !== "undefined") {
+        const savedUser = localStorage.getItem("user");
+        const savedToken = localStorage.getItem("token");
+        if (savedUser) state.user = JSON.parse(savedUser);
+        if (savedToken) state.token = savedToken;
+      }
     },
   },
   extraReducers: (builder) => {
@@ -37,6 +46,9 @@ const authSlice = createSlice({
         state.loading = false;
         state.user = action.payload.user;
         state.token = action.payload.token;
+
+        localStorage.setItem("user", JSON.stringify(action.payload.user));
+
       })
       .addCase(loginUser.rejected, (state, action) => {
         state.loading = false;
@@ -58,5 +70,5 @@ const authSlice = createSlice({
   },
 });
 
-export const { logout } = authSlice.actions;
+export const { logout, initAuth } = authSlice.actions;
 export default authSlice.reducer;

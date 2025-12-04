@@ -1,3 +1,4 @@
+"use client";
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
@@ -5,6 +6,7 @@ import Providers from "./providers"; // Redux Provider
 import 'primereact/resources/themes/saga-blue/theme.css'; // Temayı değiştirebilirsin
 import 'primereact/resources/primereact.min.css';
 import 'primeicons/primeicons.css';
+import ClientInit from "./ClientInıt";
 
 
 export const geistSans = Geist({
@@ -27,10 +29,12 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  
   return (
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         <Providers>
+          <ClientInit />
           {children} {/* Tüm sayfalar artık Redux store’a erişebilir */}
         </Providers>
       </body>
