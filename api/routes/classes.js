@@ -95,5 +95,21 @@ router.post("/delete", async (req, res) => {
     res.status(errorResponse.code).json(errorResponse);
   }
 });
+router.get("/:classId", async (req, res) => {
+  try {
+    const classId = req.params.classId;
+
+    const classData = await Classes.findById(classId)
+      .populate("teacher", "first_name last_name email");
+
+    if (!classData)
+      throw new CustomError(Enum.HTTP_CODES.NOT_FOUND, "Not Found", "Class not found");
+
+    res.json(Response.successResponse(classData));
+  } catch (err) {
+    const errorResponse = Response.errorResponse(err);
+    res.status(errorResponse.code).json(errorResponse);
+  }
+});
 
 module.exports = router;
