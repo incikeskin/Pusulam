@@ -1,6 +1,7 @@
 import { createSlice } from "@reduxjs/toolkit";
 import { loginUser, registerUser } from "./authThunks";
 import type { User } from "../types";
+import { updateUserProfile } from "./authThunks";
 
 interface AuthState {
   user: User | null;
@@ -66,7 +67,21 @@ const authSlice = createSlice({
       .addCase(registerUser.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload || "Register failed";
-      });
+      })
+      .addCase(updateUserProfile.pending, (state) => {
+      state.loading = true;
+      state.error = null;
+    })
+    .addCase(updateUserProfile.fulfilled, (state, action) => {
+      state.loading = false;
+      state.user = action.payload;
+
+      localStorage.setItem("user", JSON.stringify(action.payload));
+    })
+    .addCase(updateUserProfile.rejected, (state, action) => {
+      state.loading = false;
+      state.error = action.payload || "Güncelleme başarısız";
+    });
   },
 });
 

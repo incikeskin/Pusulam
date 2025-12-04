@@ -52,3 +52,28 @@ export const registerUser = createAsyncThunk<
   }
 });
 
+// USER PROFILE UPDATE THUNK
+export const updateUserProfile = createAsyncThunk<
+  User, // resolve tipi: güncellenmiş user
+  Partial<{ _id: string; first_name?: string; last_name?: string; password?: string; phone_number?: string }>, // input tipi
+  { rejectValue: string }
+>(
+  "auth/updateUserProfile",
+  async (updatedData, { rejectWithValue }) => {
+    try {
+      const response = await axiosInstance.post("/api/users/update", updatedData);
+      // backend response: { success: true }
+      // biz güncellenmiş user'ı tekrar fetch etmeliyiz veya local state'i güncelle
+      // varsayılan olarak localStorage'daki user'ı güncelleyelim
+      const updatedUser = { ...JSON.parse(localStorage.getItem("user") || "{}"), ...updatedData };
+      return updatedUser as User;
+    } catch (err: unknown) {
+      if (isAxiosError(err)) {
+        const axiosErr = err as AxiosError<{ message?: string }>;
+        return rejectWithValue(axiosErr.response?.data?.message || "Güncelleme başarısız");
+      }
+      return rejectWithValue("Güncelleme başarısız");
+    }
+  }
+);
+

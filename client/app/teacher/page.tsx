@@ -38,9 +38,12 @@ export default function TeacherPage() {
 
         {/* Navigation */}
         <nav className="flex flex-col gap-4 mt-6">
-          <button className="hover:bg-[#0d75a0] px-4 py-2 rounded text-left transition">
+          <Link
+            href="/teacher/info"
+            className="hover:bg-[#0d75a0] px-4 py-2 rounded text-left transition inline-block"
+          >
             Profil Bilgilerim
-          </button>
+          </Link>
           <LogoutButton />
         </nav>
       </div>
