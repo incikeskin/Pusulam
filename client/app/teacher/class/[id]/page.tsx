@@ -61,7 +61,7 @@ export default function ClassPage() {
           <nav className="hidden md:flex items-center gap-6 text-sm">
             <Link href="/" className="hover:text-[#1087BB] transition">Anasayfa</Link>
             <Link href="/teacher" className="hover:text-[#1087BB] transition">Sınıflarım</Link>
-            <Link href="/logout" className="hover:text-[#1087BB] transition">Çıkış</Link>
+            <Link href="/teacher" className="hover:text-[#1087BB] transition">Çıkış</Link>
           </nav>
         </div>
       </header>

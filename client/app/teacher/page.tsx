@@ -6,6 +6,7 @@ import { useEffect } from "react";
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import { getTeacherClasses } from "@/redux/teacher-store/teacherThunks";
 import Link from "next/link";
+import LogoutButton from "@/app/components/LogoutButton";
 
 export default function TeacherPage() {
   const dispatch = useAppDispatch();
@@ -38,14 +39,9 @@ export default function TeacherPage() {
         {/* Navigation */}
         <nav className="flex flex-col gap-4 mt-6">
           <button className="hover:bg-[#0d75a0] px-4 py-2 rounded text-left transition">
-            Profil
+            Profil Bilgilerim
           </button>
-          <button className="hover:bg-[#0d75a0] px-4 py-2 rounded text-left transition">
-            Sınıflar
-          </button>
-          <button className="hover:bg-[#0d75a0] px-4 py-2 rounded text-left transition">
-            Çıkış
-          </button>
+          <LogoutButton />
         </nav>
       </div>
 
