@@ -7,6 +7,7 @@ import 'primereact/resources/themes/saga-blue/theme.css'; // Temayı değiştire
 import 'primereact/resources/primereact.min.css';
 import 'primeicons/primeicons.css';
 import ClientInit from "./ClientInıt";
+import { Toaster } from "@/components/ui/toaster";
 
 
 export const geistSans = Geist({
@@ -36,6 +37,7 @@ export default function RootLayout({
         <Providers>
           <ClientInit />
           {children} {/* Tüm sayfalar artık Redux store’a erişebilir */}
+          <Toaster />
         </Providers>
       </body>
     </html>

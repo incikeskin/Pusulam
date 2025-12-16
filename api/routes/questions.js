@@ -91,9 +91,19 @@ router.post("/delete", async (req, res) => {
 // Kategoriye göre soruları listele
 router.get("/list-by-category/:categoryId", async (req, res) => {
   try {
-    const categoryId = req.params.categoryId;
+    const { categoryId } = req.params;
+    const { difficulty } = req.query;
 
-    const questions = await Questions.find({ category: categoryId })
+    const filter = {
+      category: categoryId,
+    };
+
+    // 🔹 Zorluk seviyesi varsa ekle
+    if (difficulty) {
+      filter.difficulty = difficulty;
+    }
+
+    const questions = await Questions.find(filter)
       .populate("category", "name");
 
     res.json(Response.successResponse(questions));

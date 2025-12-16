@@ -32,8 +32,8 @@ export default function ClassPage() {
     if (classId) {
       dispatch(fetchClassInfo(classId));
       dispatch(fetchClassStudents(classId)).unwrap()
-      .then((res) => console.log("STUDENTS THUNK RES:", res))
-      .catch((err) => console.error("STUDENTS THUNK ERR:", err));;
+        .then((res) => console.log("STUDENTS THUNK RES:", res))
+        .catch((err) => console.error("STUDENTS THUNK ERR:", err));;
       dispatch(fetchClassAssignments(classId));
     }
   }, [classId, dispatch]);
@@ -126,9 +126,12 @@ export default function ClassPage() {
               </div>
             ))}
 
-            <Button className="mt-4 w-full flex items-center gap-2 text-lg py-6">
-              <PlusCircle className="w-6 h-6" /> Yeni Ödev Oluştur
-            </Button>
+            <Link href={`/teacher/class/${classId}/assignments`}>
+              <Button className="mt-4 w-full flex items-center gap-2 text-lg py-6">
+                <PlusCircle className="w-6 h-6" /> Yeni Ödev Oluştur
+              </Button>
+            </Link>
+
           </CardContent>
         </Card>
 
