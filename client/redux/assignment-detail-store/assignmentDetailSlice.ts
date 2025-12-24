@@ -8,32 +8,44 @@ import {
 
 /* ---------------- TYPES ---------------- */
 
-interface Assignment {
+export interface QuestionOption {
+    _id: string;
+    text: string;
+    is_correct?: boolean;
+    image?: string;
+}
+
+export interface AssignmentQuestion {
+    _id: string; // assignmentQuestions._id
+    question: {
+        _id: string;
+        text: string;
+        image?: string;
+        difficulty?: string;
+        category?: string;
+        options?: QuestionOption[];
+    };
+}
+
+export interface Assignment {
     _id: string;
     title: string;
     description?: string;
-    due_date?: string | null;
-    class: string;
-    teacher: string;
-}
-
-interface QuestionOption {
-    _id: string;
-    text: string;
-    is_correct: boolean;
-}
-
-interface Question {
-    _id: string;
-    text: string;
-    category?: string;
-    difficulty?: string;
-    options?: QuestionOption[];
+    due_date?: string;
+    class?: {
+        _id: string;
+        name: string;
+    };
+    teacher?: {
+        _id: string;
+        first_name: string;
+        last_name: string;
+    };
 }
 
 interface AssignmentDetailState {
     assignment: Assignment | null;
-    questions: Question[];
+    questions: AssignmentQuestion[];
     loading: boolean;
     error: string | null;
 }
@@ -55,8 +67,7 @@ const assignmentDetailSlice = createSlice({
     reducers: {},
     extraReducers: (builder) => {
         builder
-
-            /* ---------- FETCH FULL ---------- */
+            /* FETCH FULL */
             .addCase(fetchAssignmentFull.pending, (state) => {
                 state.loading = true;
                 state.error = null;
@@ -68,10 +79,10 @@ const assignmentDetailSlice = createSlice({
             })
             .addCase(fetchAssignmentFull.rejected, (state, action) => {
                 state.loading = false;
-                state.error = action.payload as string;
+                state.error = action.error.message || "Bir hata oluştu";
             })
 
-            /* ---------- UPDATE ASSIGNMENT ---------- */
+            /* UPDATE ASSIGNMENT */
             .addCase(updateAssignment.fulfilled, (state, action) => {
                 if (state.assignment) {
                     state.assignment = {
@@ -81,18 +92,21 @@ const assignmentDetailSlice = createSlice({
                 }
             })
 
-            /* ---------- ADD QUESTION ---------- */
-            .addCase(addQuestionToAssignment.fulfilled, (state) => {
-                // 👉 burada state’i elle güncellemiyoruz
-                // 👉 işlem sonrası fetchAssignmentFull çağrılması daha sağlıklı
+            /* ADD QUESTION */
+            .addCase(addQuestionToAssignment.fulfilled, () => {
+                // ❗ Bilinçli olarak BOŞ
+                // ➜ eklemeden sonra fetchAssignmentFull çağrılacak
             })
 
-            /* ---------- REMOVE QUESTION ---------- */
-            .addCase(removeQuestionFromAssignment.fulfilled, (state) => {
-                // 👉 aynı mantık
+            /* REMOVE QUESTION */
+            .addCase(removeQuestionFromAssignment.fulfilled, (state, action) => {
+                state.questions = state.questions.filter(
+                    (q) => q._id !== action.payload
+                );
             });
     },
 });
 
 export default assignmentDetailSlice.reducer;
+
 

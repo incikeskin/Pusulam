@@ -135,17 +135,24 @@ router.get("/:assignmentId/full", async (req, res) => {
 
     //Her sorunun şıklarını getir
     const questionsWithOptions = await Promise.all(
-      assignmentQuestions.map(async (aq) => {
-        const options = await Options.find({ question: aq.question._id }).select("text is_correct image");
-        return {
-          _id: aq.question._id,
-          text: aq.question.text,
-          image: aq.question.image,
-          difficulty: aq.question.difficulty,
-          options
-        };
-      })
+        assignmentQuestions.map(async (aq) => {
+          const options = await Options.find({ question: aq.question._id })
+              .select("text is_correct image");
+
+          return {
+            _id: aq._id, // ✅ assignmentQuestions ID (ÇOK ÖNEMLİ)
+            question: {
+              _id: aq.question._id,
+              text: aq.question.text,
+              image: aq.question.image,
+              difficulty: aq.question.difficulty,
+              category: aq.question.category,
+              options
+            }
+          };
+        })
     );
+
 
     // Sonuç döndür
     res.json(
