@@ -122,7 +122,9 @@ export default function ClassPage() {
                   </p>
                 </div>
 
-                <Button variant="outline">Görüntüle</Button>
+                <Link href={`/teacher/class/${classId}/assignments/${a._id}`}>
+                  <Button variant="outline">Görüntüle</Button>
+                </Link>
               </div>
             ))}
 
