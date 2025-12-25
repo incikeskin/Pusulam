@@ -5,6 +5,7 @@ import classDetailReducer from "./classDetail-store/classDetailSlice";
 import assignmentCreateReducer from "./assignment-create-store/assignmentCreateSlice";
 import questionPoolReducer from "./question-pool-store/questionPoolSlice";
 import assignmentDetailReducer from "./assignment-detail-store/assignmentDetailSlice";
+import assignmentResultReducer from "./assignment-result-store/assignmentResultSlice";
 
 export const store = configureStore({
   reducer: {
@@ -14,6 +15,7 @@ export const store = configureStore({
     assignmentCreate: assignmentCreateReducer,
     questionPool: questionPoolReducer,
     assignmentDetail: assignmentDetailReducer,
+    assignmentResult: assignmentResultReducer,
   },
 });
 

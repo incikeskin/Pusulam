@@ -1,6 +1,7 @@
 var express = require("express");
 var router = express.Router();
 const StudentAnswers = require("../db/models/StudentAnswers");
+const AssignmentQuestions = require("../db/models/AssignmentQuestions");
 const Assignments = require("../db/models/Assignments");
 const Questions = require("../db/models/Questions");
 const Options = require("../db/models/Options");
