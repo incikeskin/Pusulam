@@ -137,6 +137,62 @@ router.all("*", auth.authenticate(), (req, res, next) => {
   next();
 });
 
+router.post("/find-student", async (req, res) => {
+  try {
+    const { email, phone_number } = req.body;
+
+    if (!email && !phone_number)
+      throw new CustomError(
+          Enum.HTTP_CODES.BAD_REQUEST,
+          "Validation Error",
+          "email or phone_number must be provided"
+      );
+
+    const user = await Users.findOne({
+      $or: [
+        email ? { email } : null,
+        phone_number ? { phone_number } : null
+      ].filter(Boolean)
+    });
+
+    if (!user)
+      throw new CustomError(
+          Enum.HTTP_CODES.NOT_FOUND,
+          "Not Found",
+          "Student not found"
+      );
+
+    // Kullanıcının STUDENT rolü var mı?
+    const studentRole = await Roles.findOne({ role_name: "student" });
+    const isStudent = await UserRoles.findOne({
+      user_id: user._id,
+      role_id: studentRole._id
+    });
+
+    if (!isStudent)
+      throw new CustomError(
+          Enum.HTTP_CODES.BAD_REQUEST,
+          "Validation Error",
+          "User is not a student"
+      );
+
+    res.json(
+        Response.successResponse({
+          _id: user._id,
+          first_name: user.first_name,
+          last_name: user.last_name,
+          email: user.email,
+          phone_number: user.phone_number
+        })
+    );
+
+  } catch (err) {
+    const errorResponse = Response.errorResponse(err);
+    res.status(errorResponse.code).json(errorResponse);
+  }
+});
+
+
 /* GET users listing. */
 router.get('/', async (req, res, next) => {
   try {
