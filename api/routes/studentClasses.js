@@ -84,5 +84,20 @@ router.get("/list-by-class/:classId", async (req, res) => {
     res.status(errorResponse.code).json(errorResponse);
   }
 });
+// Öğrenciye ait sınıfları listele
+router.get("/my-classes", async (req, res) => {
+  try {
+    const studentId = req.user.id; // auth middleware'den geliyor
+
+    const studentClasses = await StudentClasses.find({ student: studentId })
+        .populate("class", "name teacher") // sadece class bilgisi
+        .populate("student", "first_name last_name email");
+
+    res.json(Response.successResponse(studentClasses));
+  } catch (err) {
+    const errorResponse = Response.errorResponse(err);
+    res.status(errorResponse.code).json(errorResponse);
+  }
+});
 
 module.exports = router;
