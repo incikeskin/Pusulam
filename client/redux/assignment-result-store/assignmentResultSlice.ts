@@ -4,6 +4,8 @@ import {
     fetchOverallRating,
     fetchStudentAnswers,
     checkAssignmentCompleted,
+    fetchClassRanking,
+    fetchClassRankingList,
 } from "./assignmentResultThunks";
 
 /* ---------------- TYPES ---------------- */
@@ -37,11 +39,35 @@ interface StudentAnswer {
     is_correct: boolean;
 }
 
+interface ClassRanking {
+    studentId: string;
+    studentScore: number;
+    classAverage: number;
+    rank: number;
+    totalStudents: number;
+}
+
+interface ClassRankingListItem {
+    studentId: string;
+    first_name: string;
+    last_name: string;
+    score: number;
+    rank: number;
+}
+
+interface ClassRankingList {
+    classAverage: number;
+    totalStudents: number;
+    ranking: ClassRankingListItem[];
+}
+
 interface AssignmentResultsState {
     studentResult: StudentResult | null;
     overallRating: OverallRating | null;
     completedMap: Record<string, boolean>;
     studentAnswers: StudentAnswer[];
+    classRanking: ClassRanking | null;
+    classRankingList: ClassRankingList | null;
     loading: boolean;
     error: string | null;
 }
@@ -53,6 +79,8 @@ const initialState: AssignmentResultsState = {
     overallRating: null,
     completedMap: {},
     studentAnswers: [],
+    classRanking: null,
+    classRankingList: null,
     loading: false,
     error: null,
 };
@@ -112,6 +140,36 @@ const assignmentResultsSlice = createSlice({
             state.completedMap[action.payload.assignmentId] =
                 action.payload.isCompleted;
         });
+
+        /* -------- CLASS RANKING -------- */
+        builder
+            .addCase(fetchClassRanking.pending, (state) => {
+                state.loading = true;
+                state.error = null;
+            })
+            .addCase(fetchClassRanking.fulfilled, (state, action) => {
+                state.loading = false;
+                state.classRanking = action.payload;
+            })
+            .addCase(fetchClassRanking.rejected, (state, action) => {
+                state.loading = false;
+                state.error = action.payload as string;
+            });
+
+        /* -------- CLASS RANKING LIST -------- */
+        builder
+            .addCase(fetchClassRankingList.pending, (state) => {
+                state.loading = true;
+                state.error = null;
+            })
+            .addCase(fetchClassRankingList.fulfilled, (state, action) => {
+                state.loading = false;
+                state.classRankingList = action.payload;
+            })
+            .addCase(fetchClassRankingList.rejected, (state, action) => {
+                state.loading = false;
+                state.error = action.payload as string;
+            });
 
     },
 });

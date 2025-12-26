@@ -85,3 +85,40 @@ export const checkAssignmentCompleted = createAsyncThunk(
         }
     }
 );
+
+
+// Tek öğrenci için ödev sıralaması
+export const fetchClassRanking = createAsyncThunk(
+    "assignmentResults/fetchClassRanking",
+    async (
+        { assignmentId, classId, studentId }: { assignmentId: string; classId: string; studentId: string },
+        { rejectWithValue }
+    ) => {
+        try {
+            const res = await axiosInstance.get(
+                `/api/studentAnswers/class-ranking/${assignmentId}/${classId}/${studentId}`
+            );
+            return res.data.data;
+        } catch (err: any) {
+            return rejectWithValue(err.response?.data?.message || "Sınıf sıralaması getirilemedi");
+        }
+    }
+);
+
+// Tüm sınıf sıralama listesi
+export const fetchClassRankingList = createAsyncThunk(
+    "assignmentResults/fetchClassRankingList",
+    async (
+        { assignmentId, classId }: { assignmentId: string; classId: string },
+        { rejectWithValue }
+    ) => {
+        try {
+            const res = await axiosInstance.get(
+                `/api/studentAnswers/class-ranking-list/${assignmentId}/${classId}`
+            );
+            return res.data.data;
+        } catch (err: any) {
+            return rejectWithValue(err.response?.data?.message || "Sınıf sıralama listesi getirilemedi");
+        }
+    }
+);

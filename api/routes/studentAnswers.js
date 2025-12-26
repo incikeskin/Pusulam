@@ -10,6 +10,7 @@ const Response = require("../lib/Response");
 const CustomError = require("../lib/Error");
 const Enum = require("../config/Enum");
 const auth = require("../lib/auth")();
+const StudentClasses = require("../db/models/StudentClasses");
 
 // 🔹 Tüm endpointlerde kimlik doğrulama
 router.all("*", auth.authenticate(), (req, res, next) => {
@@ -190,6 +191,178 @@ router.get("/overall-rating/:classId/:studentId", async (req, res) => {
     res.status(errorResponse.code).json(errorResponse);
   }
 });
+
+// 📊 SINIF ORTALAMASI + SIRALAMA (TEK ÖDEV)
+router.get("/class-ranking/:assignmentId/:classId/:studentId", async (req, res) => {
+  try {
+    const { assignmentId, classId, studentId } = req.params;
+
+    // 1️⃣ Sınıftaki öğrencileri al
+    const studentClasses = await StudentClasses.find({ class: classId })
+        .select("student");
+
+    if (!studentClasses.length) {
+      throw new CustomError(
+          Enum.HTTP_CODES.NOT_FOUND,
+          "Not Found",
+          "No students in class"
+      );
+    }
+
+    const studentIds = studentClasses.map(sc => sc.student.toString());
+
+    // 2️⃣ Bu ödev için tüm cevapları çek
+    const answers = await StudentAnswers.find({
+      assignment: assignmentId,
+      student: { $in: studentIds }
+    });
+
+    if (!answers.length) {
+      throw new CustomError(
+          Enum.HTTP_CODES.NOT_FOUND,
+          "Not Found",
+          "No answers found for this assignment"
+      );
+    }
+
+    // 3️⃣ Öğrenci bazlı skorları hesapla
+    const scoreMap = {};
+
+    answers.forEach(answer => {
+      const sid = answer.student.toString();
+
+      if (!scoreMap[sid]) {
+        scoreMap[sid] = { correct: 0, total: 0 };
+      }
+
+      scoreMap[sid].total += 1;
+      if (answer.is_correct) scoreMap[sid].correct += 1;
+    });
+
+    const scores = Object.entries(scoreMap).map(([student, data]) => ({
+      student,
+      score: Math.round((data.correct / data.total) * 100)
+    }));
+
+    // 4️⃣ Sıralama (yüksekten düşüğe)
+    scores.sort((a, b) => b.score - a.score);
+
+    // 5️⃣ Öğrencinin sırası
+    const rankIndex = scores.findIndex(
+        s => s.student.toString() === studentId
+    );
+
+    if (rankIndex === -1) {
+      throw new CustomError(
+          Enum.HTTP_CODES.NOT_FOUND,
+          "Not Found",
+          "Student not ranked for this assignment"
+      );
+    }
+
+    const rank = rankIndex + 1;
+
+    // 6️⃣ Sınıf ortalaması
+    const classAverage = Math.round(
+        scores.reduce((sum, s) => sum + s.score, 0) / scores.length
+    );
+
+    res.json(Response.successResponse({
+      studentId,
+      studentScore: scores[rankIndex].score,
+      classAverage,
+      rank,
+      totalStudents: scores.length
+    }));
+
+  } catch (err) {
+    const errorResponse = Response.errorResponse(err);
+    res.status(errorResponse.code).json(errorResponse);
+  }
+});
+
+// 📊 SINIF RANKING LİSTESİ (TEK ÖDEV)
+router.get("/class-ranking-list/:assignmentId/:classId", async (req, res) => {
+  try {
+    const { assignmentId, classId } = req.params;
+
+    // 1️⃣ Sınıftaki öğrencileri al
+    const studentClasses = await StudentClasses.find({ class: classId })
+        .populate("student", "first_name last_name")
+        .select("student");
+
+    if (!studentClasses.length) {
+      throw new CustomError(
+          Enum.HTTP_CODES.NOT_FOUND,
+          "Not Found",
+          "No students in class"
+      );
+    }
+
+    const studentIds = studentClasses.map(sc => sc.student._id.toString());
+
+    // 2️⃣ Bu ödev için tüm cevapları al
+    const answers = await StudentAnswers.find({
+      assignment: assignmentId,
+      student: { $in: studentIds }
+    });
+
+    // 3️⃣ Öğrenci bazlı skor map
+    const scoreMap = {};
+
+    studentIds.forEach(id => {
+      scoreMap[id] = { correct: 0, total: 0 };
+    });
+
+    answers.forEach(answer => {
+      const sid = answer.student.toString();
+      scoreMap[sid].total += 1;
+      if (answer.is_correct) scoreMap[sid].correct += 1;
+    });
+
+    // 4️⃣ Skorları hesapla
+    const ranking = studentClasses.map(sc => {
+      const sid = sc.student._id.toString();
+      const data = scoreMap[sid];
+
+      const score =
+          data.total > 0
+              ? Math.round((data.correct / data.total) * 100)
+              : 0;
+
+      return {
+        studentId: sid,
+        first_name: sc.student.first_name,
+        last_name: sc.student.last_name,
+        score
+      };
+    });
+
+    // 5️⃣ Sıralama (yüksekten düşüğe)
+    ranking.sort((a, b) => b.score - a.score);
+
+    // 6️⃣ Rank ekle
+    ranking.forEach((item, index) => {
+      item.rank = index + 1;
+    });
+
+    // 7️⃣ Sınıf ortalaması
+    const classAverage = Math.round(
+        ranking.reduce((sum, s) => sum + s.score, 0) / ranking.length
+    );
+
+    res.json(Response.successResponse({
+      classAverage,
+      totalStudents: ranking.length,
+      ranking
+    }));
+
+  } catch (err) {
+    const errorResponse = Response.errorResponse(err);
+    res.status(errorResponse.code).json(errorResponse);
+  }
+});
+
 
 
 module.exports = router;
