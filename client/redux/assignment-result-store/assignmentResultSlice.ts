@@ -3,6 +3,7 @@ import {
     fetchStudentResult,
     fetchOverallRating,
     fetchStudentAnswers,
+    checkAssignmentCompleted,
 } from "./assignmentResultThunks";
 
 /* ---------------- TYPES ---------------- */
@@ -39,6 +40,7 @@ interface StudentAnswer {
 interface AssignmentResultsState {
     studentResult: StudentResult | null;
     overallRating: OverallRating | null;
+    completedMap: Record<string, boolean>;
     studentAnswers: StudentAnswer[];
     loading: boolean;
     error: string | null;
@@ -49,6 +51,7 @@ interface AssignmentResultsState {
 const initialState: AssignmentResultsState = {
     studentResult: null,
     overallRating: null,
+    completedMap: {},
     studentAnswers: [],
     loading: false,
     error: null,
@@ -105,6 +108,11 @@ const assignmentResultsSlice = createSlice({
                 state.loading = false;
                 state.error = action.payload as string;
             });
+        builder.addCase(checkAssignmentCompleted.fulfilled, (state, action) => {
+            state.completedMap[action.payload.assignmentId] =
+                action.payload.isCompleted;
+        });
+
     },
 });
 

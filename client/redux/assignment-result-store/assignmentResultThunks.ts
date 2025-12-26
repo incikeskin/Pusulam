@@ -65,3 +65,23 @@ export const fetchStudentAnswers = createAsyncThunk(
         }
     }
 );
+export const checkAssignmentCompleted = createAsyncThunk(
+    "assignmentResult/checkAssignmentCompleted",
+    async (
+        { assignmentId, studentId }: { assignmentId: string; studentId: string },
+        { rejectWithValue }
+    ) => {
+        try {
+            const res = await axiosInstance.get(
+                `/api/studentAnswers/list-by-student/${assignmentId}/${studentId}`
+            );
+
+            return {
+                assignmentId,
+                isCompleted: res.data.data.length > 0,
+            };
+        } catch (err: any) {
+            return rejectWithValue("Kontrol edilemedi");
+        }
+    }
+);
