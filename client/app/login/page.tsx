@@ -23,6 +23,7 @@ export default function LoginPage() {
       const role = result.payload.user.role;
       if (role === "teacher") router.push("/teacher");
       else if (role === "student") router.push("/student");
+      else if (role=== "Admin") router.push("/admin");
       else router.push("/"); // fallback
     }
   };
