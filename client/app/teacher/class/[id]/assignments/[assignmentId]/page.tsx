@@ -2,9 +2,10 @@
 
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
-import { BookOpen, PlusCircle, Trash2, User } from "lucide-react";
+import { BookOpen, PlusCircle, Trash2, User, Trophy } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
+import { BarChart2 } from "lucide-react";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -31,6 +32,7 @@ import {
 import {
     fetchStudentResult,
     fetchStudentAnswers,
+    fetchClassRankingList,
 } from "@/redux/assignment-result-store/assignmentResultThunks";
 
 /* class detail (students) */
@@ -59,6 +61,7 @@ export default function AssignmentDetailPage() {
     const {
         studentResult,
         studentAnswers,
+        classRankingList,
         loading: resultLoading,
     } = useAppSelector((state) => state.assignmentResult);
 
@@ -74,8 +77,14 @@ export default function AssignmentDetailPage() {
     useEffect(() => {
         if (assignment?.class?._id) {
             dispatch(fetchClassStudents(assignment.class._id));
+            dispatch(
+                fetchClassRankingList({
+                    assignmentId,
+                    classId: assignment.class._id,
+                })
+            );
         }
-    }, [assignment, dispatch]);
+    }, [assignment, assignmentId, dispatch]);
 
     useEffect(() => {
         if (selectedCategoryId) {
@@ -153,7 +162,9 @@ export default function AssignmentDetailPage() {
                     </CardHeader>
                     <CardContent>
                         <p>{assignment.description}</p>
-                        <p className="text-sm text-gray-400">Sınıf: {assignment.class?.name}</p>
+                        <p className="text-sm text-gray-400">
+                            Sınıf: {assignment.class?.name}
+                        </p>
                     </CardContent>
                 </Card>
 
@@ -199,7 +210,6 @@ export default function AssignmentDetailPage() {
                         </CardContent>
                     </Card>
                 )}
-
                 {/* STUDENT ANSWERS */}
                 {selectedStudentId && (
                     <Card>
@@ -222,6 +232,45 @@ export default function AssignmentDetailPage() {
                         </CardContent>
                     </Card>
                 )}
+
+                {/* CLASS RANKING & AVERAGE */}
+                {classRankingList && (
+                    <Card>
+                        <CardHeader>
+                            <CardTitle className="flex gap-2">
+                                <Trophy className="w-5 h-5 text-yellow-500" />
+                                Sınıf Sıralaması & Ortalama
+                            </CardTitle>
+                        </CardHeader>
+                        <CardContent className="space-y-4">
+                            <div className="flex gap-6 text-sm">
+                                <p>
+                                    <strong>Sınıf Ortalaması:</strong>{" "}
+                                    %{classRankingList.classAverage}
+                                </p>
+                                <p>
+                                    <strong>Toplam Öğrenci:</strong>{" "}
+                                    {classRankingList.totalStudents}
+                                </p>
+                            </div>
+
+                            <div className="space-y-2">
+                                {classRankingList.ranking.map((r) => (
+                                    <div
+                                        key={r.studentId}
+                                        className="flex justify-between border p-2 rounded text-sm"
+                                    >
+                                        <span>
+                                            {r.rank}. {r.first_name} {r.last_name}
+                                        </span>
+                                        <span className="font-medium">%{r.score}</span>
+                                    </div>
+                                ))}
+                            </div>
+                        </CardContent>
+                    </Card>
+                )}
+
 
                 {/* ASSIGNMENT QUESTIONS */}
                 <Card>
@@ -317,9 +366,7 @@ export default function AssignmentDetailPage() {
 
                     </CardContent>
                 </Card>
-
             </main>
-
             {/* FOOTER */}
             <footer className="bg-white border-t">
                 <div className="max-w-7xl mx-auto px-6 py-6 text-sm text-gray-500 flex justify-between">
@@ -330,3 +377,4 @@ export default function AssignmentDetailPage() {
         </div>
     );
 }
+

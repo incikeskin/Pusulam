@@ -129,7 +129,7 @@ export default function TeacherPage() {
                         <h2 className="font-bold text-lg text-[#1087BB]">
                           {cls.name}
                         </h2>
-                        <p>Öğrenci Sayısı: 10</p>
+
                       </div>
                     </Link>
                   </motion.div>
