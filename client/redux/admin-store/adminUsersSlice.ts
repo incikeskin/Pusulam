@@ -1,5 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { fetchUsersByRole } from "./adminThunks";
+import { fetchUsersByRole, deleteUser } from "./adminThunks";
 
 interface AdminUsersState {
     loading: boolean;
@@ -38,7 +38,13 @@ const adminUsersSlice = createSlice({
             .addCase(fetchUsersByRole.rejected, (state, action) => {
                 state.loading = false;
                 state.error = action.payload as string;
+            })
+            .addCase(deleteUser.fulfilled, (state, action) => {
+                state.students = state.students.filter(u => u._id !== action.payload);
+                state.teachers = state.teachers.filter(u => u._id !== action.payload);
+                state.admins = state.admins.filter(u => u._id !== action.payload);
             });
+
     },
 });
 
