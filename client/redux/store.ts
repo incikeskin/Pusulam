@@ -13,6 +13,7 @@ import studentReducer from "./student-store/studentSlice";
 import adminDashboardReducer  from "./admin-store/adminDashboardSlice";
 import adminUsersReducer from "./admin-store/adminUsersSlice";
 import adminClassesReducer from "./admin-classes-store/adminClassesSlice";
+import adminCategoriesReducer from "./admin-categories-store/adminCategoriesSlice";
 
 export const store = configureStore({
   reducer: {
@@ -30,6 +31,7 @@ export const store = configureStore({
     adminDashboard: adminDashboardReducer,
     adminUsers: adminUsersReducer,
     adminClasses: adminClassesReducer,
+    adminCategories: adminCategoriesReducer,
   },
 });
 

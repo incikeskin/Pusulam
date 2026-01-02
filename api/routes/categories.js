@@ -7,16 +7,34 @@ const Enum = require("../config/Enum");
 const AuditLogs = require('../lib/AuditLogs');
 const logger = require('../lib/logger/LoggerClass');
 
-/* GET users listing. */
-router.get('/', async(req, res, next)=> {
-  try{
+/* GET categories listing with question count */
+router.get("/", async (req, res) => {
+  try {
+    const categories = await Categories.aggregate([
+      {
+        $lookup: {
+          from: "questions",        // questions collection
+          localField: "_id",
+          foreignField: "category",
+          as: "questions"
+        }
+      },
+      {
+        $addFields: {
+          questionCount: { $size: "$questions" }
+        }
+      },
+      {
+        $project: {
+          questions: 0 // frontend'e gereksiz data gitmesin
+        }
+      }
+    ]);
 
-    /*select sorgusu:*/ 
-    let categories = await Categories.find({});
     res.json(Response.successResponse(categories));
-  }catch(err){
-    let errorReponse = Response.errorReponse(err);
-    res.status(errorReponse.code).json(Response.errorReponse(err));
+  } catch (err) {
+    let errorResponse = Response.errorReponse(err);
+    res.status(errorResponse.code).json(errorResponse);
   }
 });
 
