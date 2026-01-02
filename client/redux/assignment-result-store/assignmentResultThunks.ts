@@ -122,3 +122,36 @@ export const fetchClassRankingList = createAsyncThunk(
         }
     }
 );
+
+export const addStudentAnswer = createAsyncThunk(
+    "assignmentResult/addStudentAnswer",
+    async (
+        {
+            studentId,
+            assignmentId,
+            questionId,
+            selectedOptionId,
+        }: {
+            studentId: string;
+            assignmentId: string;
+            questionId: string;
+            selectedOptionId: string;
+        },
+        { rejectWithValue }
+    ) => {
+        try {
+            const res = await axiosInstance.post("/api/studentAnswers/add", {
+                student: studentId,
+                assignment: assignmentId,
+                question: questionId,
+                selected_option: selectedOptionId,
+            });
+
+            return res.data.data;
+        } catch (err: any) {
+            return rejectWithValue(
+                err.response?.data?.message || "Cevap kaydedilemedi"
+            );
+        }
+    }
+);

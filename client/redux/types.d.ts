@@ -42,6 +42,7 @@ export interface AssignmentItem {
   class?: Partial<ClassItem> | string;
   teacher?: Partial<User> | string;
   due_date?: string | null;
+  questions: Question[];
   is_active?: boolean;
   created_at?: string;
   updated_at?: string;
