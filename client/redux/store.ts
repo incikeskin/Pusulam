@@ -14,6 +14,8 @@ import adminDashboardReducer  from "./admin-store/adminDashboardSlice";
 import adminUsersReducer from "./admin-store/adminUsersSlice";
 import adminClassesReducer from "./admin-classes-store/adminClassesSlice";
 import adminCategoriesReducer from "./admin-categories-store/adminCategoriesSlice";
+import adminQuestionReducer from "./admin-question-store/adminQuestionSlice";
+import adminOptionsReducer from "./admin-options-store/adminOptionsSlice";
 
 export const store = configureStore({
   reducer: {
@@ -32,6 +34,8 @@ export const store = configureStore({
     adminUsers: adminUsersReducer,
     adminClasses: adminClassesReducer,
     adminCategories: adminCategoriesReducer,
+    adminQuestions: adminQuestionReducer,
+    adminOptions: adminOptionsReducer,
   },
 });
 

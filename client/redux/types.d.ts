@@ -54,10 +54,14 @@ export interface OptionItem {
   is_correct?: boolean;
   image?: string | null;
 }
-
+export interface CategoryItem {
+  _id: string;
+  name: string;
+}
 export interface QuestionItem {
   _id: string;
   text: string;
+  category?: string | CategoryItem;
   image?: string | null;
   difficulty?: string;
   // vb.
