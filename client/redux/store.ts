@@ -12,6 +12,7 @@ import studentClassCreateReducer from "./studentClassCreate-store/studentClassCr
 import studentReducer from "./student-store/studentSlice";
 import adminDashboardReducer  from "./admin-store/adminDashboardSlice";
 import adminUsersReducer from "./admin-store/adminUsersSlice";
+import adminClassesReducer from "./admin-classes-store/adminClassesSlice";
 
 export const store = configureStore({
   reducer: {
@@ -28,6 +29,7 @@ export const store = configureStore({
     student: studentReducer,
     adminDashboard: adminDashboardReducer,
     adminUsers: adminUsersReducer,
+    adminClasses: adminClassesReducer,
   },
 });
 
