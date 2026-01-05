@@ -75,17 +75,20 @@ export default function LandingPage(): React.ReactNode {
 
                     <div className="lg:w-1/2 flex justify-center">
                         <div className="w-full max-w-md rounded-2xl shadow-xl p-6 bg-gradient-to-b from-white to-slate-50">
-                            <div className="h-64 bg-slate-100 rounded-lg border-2 border-dashed border-slate-200 flex items-center justify-center">
-                                <div className="text-slate-400">Panel ekran görüntüsü (yer tutucu)</div>
+                            {/* 📱 MOBİL MOCKUP */}
+                            <div className="relative h-80">
+                                <Image
+                                    src="/images/mobile-mockup.png"
+                                    alt="Pusulam mobil görev takibi"
+                                    fill
+                                    className="object-contain rounded-xl"
+                                    priority
+                                />
                             </div>
                             <div className="mt-4 flex gap-3 flex-wrap">
                                 <div className="flex-1 bg-white p-3 border rounded shadow-sm hover:shadow-lg transition">
                                     <div className="text-xs text-slate-500">Bugün</div>
-                                    <div className="font-semibold">3/5 görev tamamlandı</div>
-                                </div>
-                                <div className="w-24 bg-white p-3 border rounded text-center shadow-sm hover:shadow-lg transition">
-                                    <div className="text-xs text-slate-500">Skor</div>
-                                    <div className="font-semibold text-indigo-600">82%</div>
+                                    <div className="font-semibold">İndir ve Başla!</div>
                                 </div>
                             </div>
                         </div>
