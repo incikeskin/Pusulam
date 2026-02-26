@@ -147,27 +147,27 @@ router.get("/overall-rating/:classId/:studentId", async (req, res) => {
   try {
     const { classId, studentId } = req.params;
 
-    // 1️⃣ O sınıfa verilen tüm ödevleri getir
+    // O sınıfa verilen tüm ödevleri getir
     const assignments = await Assignments.find({ class: classId }).select("_id");
     if (!assignments.length)
       throw new CustomError(Enum.HTTP_CODES.NOT_FOUND, "Not Found", "No assignments found for this class");
 
     const assignmentIds = assignments.map(a => a._id);
 
-    // 2️⃣ O ödevlerdeki tüm soruları getir
+    // O ödevlerdeki tüm soruları getir
     const assignmentQuestions = await AssignmentQuestions.find({
       assignment: { $in: assignmentIds }
     }).select("assignment question");
 
     const totalQuestions = assignmentQuestions.length;
 
-    // 3️⃣ Öğrencinin verdiği cevapları getir (sadece bu ödevler için)
+    // Öğrencinin verdiği cevapları getir (sadece bu ödevler için)
     const studentAnswers = await StudentAnswers.find({
       assignment: { $in: assignmentIds },
       student: studentId
     }).select("assignment question is_correct");
 
-    // 4️⃣ Doğru sayısını hesapla
+    // Doğru sayısını hesapla
     let totalCorrect = 0;
     assignmentQuestions.forEach(aq => {
       const answer = studentAnswers.find(sa => sa.question.toString() === aq.question.toString());
@@ -286,7 +286,7 @@ router.get("/class-ranking-list/:assignmentId/:classId", async (req, res) => {
   try {
     const { assignmentId, classId } = req.params;
 
-    // 1️⃣ Sınıftaki öğrencileri al
+    // Sınıftaki öğrencileri al
     const studentClasses = await StudentClasses.find({ class: classId })
         .populate("student", "first_name last_name")
         .select("student");
@@ -301,13 +301,13 @@ router.get("/class-ranking-list/:assignmentId/:classId", async (req, res) => {
 
     const studentIds = studentClasses.map(sc => sc.student._id.toString());
 
-    // 2️⃣ Bu ödev için tüm cevapları al
+    // Bu ödev için tüm cevapları al
     const answers = await StudentAnswers.find({
       assignment: assignmentId,
       student: { $in: studentIds }
     });
 
-    // 3️⃣ Öğrenci bazlı skor map
+    // Öğrenci bazlı skor map
     const scoreMap = {};
 
     studentIds.forEach(id => {
@@ -320,7 +320,7 @@ router.get("/class-ranking-list/:assignmentId/:classId", async (req, res) => {
       if (answer.is_correct) scoreMap[sid].correct += 1;
     });
 
-    // 4️⃣ Skorları hesapla
+    // Skorları hesapla
     const ranking = studentClasses.map(sc => {
       const sid = sc.student._id.toString();
       const data = scoreMap[sid];
@@ -338,15 +338,15 @@ router.get("/class-ranking-list/:assignmentId/:classId", async (req, res) => {
       };
     });
 
-    // 5️⃣ Sıralama (yüksekten düşüğe)
+    // Sıralama (yüksekten düşüğe)
     ranking.sort((a, b) => b.score - a.score);
 
-    // 6️⃣ Rank ekle
+    // Rank ekle
     ranking.forEach((item, index) => {
       item.rank = index + 1;
     });
 
-    // 7️⃣ Sınıf ortalaması
+    // Sınıf ortalaması
     const classAverage = Math.round(
         ranking.reduce((sum, s) => sum + s.score, 0) / ranking.length
     );

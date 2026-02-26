@@ -194,6 +194,9 @@ export default function StudentClassDetailPage() {
                             {assignments.map((assignment) => {
                                 const isCompleted =
                                     completedMap[assignment._id];
+                                const isPastDue = assignment.due_date
+                                    ? new Date(assignment.due_date) < new Date()
+                                    : false;
 
                                 return (
                                     <motion.div
@@ -235,6 +238,13 @@ export default function StudentClassDetailPage() {
                                                         Sonuçlarımı Gör
                                                     </Button>
                                                 </Link>
+                                            ) : isPastDue ? (
+                                                <Button
+                                                    className="w-full cursor-not-allowed opacity-50"
+                                                    disabled
+                                                >
+                                                    Süresi Doldu
+                                                </Button>
                                             ) : (
                                                 <Link
                                                     href={`/student/assignments/${assignment._id}/solve`}
@@ -245,6 +255,7 @@ export default function StudentClassDetailPage() {
                                                 </Link>
                                             )}
                                         </div>
+
                                     </motion.div>
                                 );
                             })}
