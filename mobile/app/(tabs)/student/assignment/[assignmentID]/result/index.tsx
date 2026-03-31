@@ -7,7 +7,7 @@ export default function StudentAssignmentResultScreen() {
     const params = useLocalSearchParams();
     const assignmentId = params.assignmentId;
 
-    // 🔹 Statik veriler (demo için)
+    
     const [studentResult, setStudentResult] = useState({
         total: 20,
         correct: 15,

@@ -1,26 +1,34 @@
 import { useState } from "react";
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image, SafeAreaView } from "react-native";
 import { useRouter } from "expo-router";
+import { useDispatch, useSelector } from "react-redux";
+import { loginUser } from "../../../store/auth/authThunks"; // path store’a göre ayarla
+import {AppDispatch, RootState} from "../../../store/store"; // store.ts’de RootState export et
 
 export default function LoginScreen() {
     const router = useRouter();
+    const dispatch = useDispatch<AppDispatch>();
 
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
 
-    const handleLogin = () => {
-        // Şimdilik sadece örnek
-        console.log("Login attempt:", email, password);
+    const { loading, error, user } = useSelector((state: RootState) => state.auth);
 
-        // Redux gelince backend doğrulaması buraya eklenecek
-        // Şimdilik test için
-        router.push("//(tabs)");
+    const handleLogin = async () => {
+        try {
+            const resultAction = await dispatch(loginUser({ email, password }));
+            if (loginUser.fulfilled.match(resultAction)) {
+                // Login başarılı, yönlendir
+                router.push("//(tabs)");
+            }
+        } catch (err) {
+            console.log("Login error:", err);
+        }
     };
 
     return (
         <SafeAreaView style={styles.safe}>
             <View style={styles.container}>
-
                 {/* Logo + Başlık */}
                 <View style={styles.logoContainer}>
                     <Image source={require("../../../assets/images/pusulam_logo.png")} style={styles.logo} />
@@ -49,9 +57,19 @@ export default function LoginScreen() {
                         secureTextEntry
                     />
 
-                    <TouchableOpacity style={styles.button} onPress={handleLogin}>
-                        <Text style={styles.buttonText}>Giriş Yap</Text>
+                    {/* Login button */}
+                    <TouchableOpacity
+                        style={[styles.button, loading && { opacity: 0.6 }]}
+                        onPress={handleLogin}
+                        disabled={loading}
+                    >
+                        <Text style={styles.buttonText}>
+                            {loading ? "Giriş Yapılıyor..." : "Giriş Yap"}
+                        </Text>
                     </TouchableOpacity>
+
+                    {/* Error message */}
+                    {error && <Text style={{ color: "red", marginTop: 10, textAlign: "center" }}>{error}</Text>}
                 </View>
 
                 {/* Kayıt Ol */}
@@ -60,7 +78,6 @@ export default function LoginScreen() {
                         Hesabın yok mu? <Text style={styles.registerLink}>Kayıt Ol</Text>
                     </Text>
                 </TouchableOpacity>
-
             </View>
         </SafeAreaView>
     );

@@ -7,7 +7,7 @@ export default function SolveAssignmentScreen() {
     const params = useLocalSearchParams();
     const assignmentId = params.assignmentId;
 
-    // 🔹 Statik demo veriler
+
     const [assignment] = useState({
         title: "Matematik Ödevi 1",
         description: "Bu ödevde toplama ve çıkarma soruları bulunmaktadır."
