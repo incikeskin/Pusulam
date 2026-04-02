@@ -9,9 +9,14 @@ import {
     SafeAreaView
 } from "react-native";
 import { useRouter } from "expo-router";
+import { useAppDispatch, useAppSelector } from "@/store/hooks"; // path senin projeye göre değişebilir
+import { registerUser } from "@/store/auth/authThunks";
+import { Alert } from "react-native";
 
 export default function RegisterScreen() {
     const router = useRouter();
+    const dispatch = useAppDispatch();
+    const { loading, error } = useAppSelector((state) => state.auth);
 
     const [form, setForm] = useState({
         first_name: "",
@@ -23,12 +28,26 @@ export default function RegisterScreen() {
     });
 
     const handleChange = (field: string, value: string) => {
-        setForm({ ...form, [field]: value });
+        setForm((prev) => ({ ...prev, [field]: value }));
     };
 
-    const handleRegister = () => {
-        console.log("Register form:", form);
-        router.push("/login"); // Kayıt sonrası login'e yönlendir
+    const handleRegister = async () => {
+        // basit validation
+        if (!form.email || !form.password) {
+            Alert.alert("Hata", "Email ve şifre zorunlu");
+            return;
+        }
+
+        const result = await dispatch(registerUser(form));
+
+        if (registerUser.fulfilled.match(result)) {
+            Alert.alert("Başarılı", "Kayıt oluşturuldu 🎉");
+
+            // login sayfasına yönlendir
+            router.replace("/login");
+        } else {
+            Alert.alert("Hata", result.payload as string);
+        }
     };
 
     return (
@@ -70,6 +89,7 @@ export default function RegisterScreen() {
                         value={form.email}
                         onChangeText={(t) => handleChange("email", t)}
                         autoCapitalize="none"
+                        keyboardType="email-address"
                         style={styles.input}
                     />
 
@@ -123,9 +143,19 @@ export default function RegisterScreen() {
                             </Text>
                         </TouchableOpacity>
                     </View>
-
-                    <TouchableOpacity style={styles.button} onPress={handleRegister}>
-                        <Text style={styles.buttonText}>Kayıt Ol</Text>
+                    {error && (
+                        <Text style={{ color: "red", marginTop: 10 }}>
+                            {error}
+                        </Text>
+                    )}
+                    <TouchableOpacity
+                        style={[styles.button, loading && { opacity: 0.6 }]}
+                        onPress={handleRegister}
+                        disabled={loading}
+                    >
+                        <Text style={styles.buttonText}>
+                            {loading ? "Yükleniyor..." : "Kayıt Ol"}
+                        </Text>
                     </TouchableOpacity>
                 </View>
 

@@ -40,3 +40,31 @@ export const loginUser = createAsyncThunk<
         return rejectWithValue("Login failed");
     }
 });
+
+// REGISTER
+export const registerUser = createAsyncThunk<
+    { success: boolean },
+    {
+        email: string;
+        password: string;
+        first_name?: string;
+        last_name?: string;
+        phone_number?: string;
+        role?: string;
+    },
+    { rejectValue: string }
+>("auth/registerUser", async (userData, { rejectWithValue }) => {
+    try {
+        const response = await axiosInstance.post("/api/users/register", userData);
+
+        return response.data.data; // { success: true }
+    } catch (err: unknown) {
+        if (isAxiosError(err)) {
+            const axiosErr = err as AxiosError<{ message: string }>;
+            return rejectWithValue(
+                axiosErr.response?.data?.message || "Register failed"
+            );
+        }
+        return rejectWithValue("Register failed");
+    }
+});
