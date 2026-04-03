@@ -1,72 +1,110 @@
-import { useState, useEffect } from "react";
-import { View, Text, ScrollView, StyleSheet, TouchableOpacity, SafeAreaView } from "react-native";
+import { useEffect, useMemo } from "react";
+import {
+    View,
+    Text,
+    ScrollView,
+    StyleSheet,
+    TouchableOpacity,
+    SafeAreaView
+} from "react-native";
+import { useLocalSearchParams } from "expo-router";
+
+import { useAppDispatch, useAppSelector } from "../../../../../store/hooks";
+import {
+    fetchClassInfo,
+    fetchClassAssignments
+} from "../../../../../store/classDetail/classDetailThunks";
+import { clearClassDetail } from "../../../../../store/classDetail/classDetailSlice";
+import { checkAssignmentCompleted } from "../../../../../store/assignmentResult/assignmentResultThunks";
 
 export default function StudentClassDetailScreen() {
-    // 🔹 Statik demo veriler
-    const info = { name: "Matematik 101", teacher: "Ayşe Yılmaz" };
-    const assignments = [
-        { _id: "1", title: "Ödev 1", description: "Konu 1 çalışması", due_date: "2026-03-10" },
-        { _id: "2", title: "Ödev 2", description: "Konu 2 çalışması", due_date: "2026-03-01" },
-        { _id: "3", title: "Ödev 3", description: "Konu 3 çalışması", due_date: "2026-03-15" },
-    ];
-    const completedMap: Record<string, boolean> = { "1": true };
+    const params = useLocalSearchParams<{ classID: string }>();
+    const classId = params.classID;
 
-    const completedCount = assignments.filter(a => completedMap[a._id]).length;
-    const progressPercent = assignments.length ? Math.round((completedCount / assignments.length) * 100) : 0;
+    const dispatch = useAppDispatch();
+    const { info, assignments, loading, error } = useAppSelector(
+        (state) => state.classDetail
+    );
+    const { completedMap } = useAppSelector((state) => state.assignmentResult);
+    const { user } = useAppSelector((state) => state.auth);
+
+    // ---------------- FETCH CLASS DATA ----------------
+    useEffect(() => {
+        if (!classId) return;
+
+        dispatch(fetchClassInfo(classId));
+        dispatch(fetchClassAssignments(classId));
+
+        return () => {
+            dispatch(clearClassDetail());
+        };
+    }, [classId, dispatch]);
+
+    useEffect(() => {
+        if (!assignments.length) return;
+        if (!user?._id) return;
+
+        assignments.forEach((assignment: any) => {
+            dispatch(
+                checkAssignmentCompleted({
+                    assignmentId: assignment._id,
+                    studentId: user!._id,
+                })
+            );
+        });
+    }, [assignments, user, dispatch]);
+
+    const teacherName = useMemo(() => {
+        if (!info?.teacher || typeof info.teacher === "string") return "-";
+        return `${info.teacher.first_name} ${info.teacher.last_name}`;
+    }, [info]);
+
+    const completedCount = useMemo(() => {
+        return assignments.filter((a: any) => completedMap[a._id]).length;
+    }, [assignments, completedMap]);
+
+    const progressPercent = useMemo(() => {
+        if (assignments.length === 0) return 0;
+        return Math.round((completedCount / assignments.length) * 100);
+    }, [completedCount, assignments.length]);
 
     const today = new Date();
+
+    if (loading && !info) return <Text style={{ padding: 20 }}>Yükleniyor...</Text>;
+    if (error) return <Text style={{ padding: 20, color: "red" }}>{error}</Text>;
 
     return (
         <SafeAreaView style={styles.safe}>
             <ScrollView style={styles.container} contentContainerStyle={{ paddingBottom: 40 }}>
-                {/* Geri dön */}
-                <TouchableOpacity onPress={() => { /* router.push("/student") */ }} style={styles.backButton}>
-                    <Text style={styles.backText}>← Sınıflarıma dön</Text>
-                </TouchableOpacity>
-
-                {/* 🔹 Sınıf Bilgileri */}
+                {/* Sınıf Bilgileri */}
                 <View style={styles.card}>
                     <Text style={styles.cardTitle}>Sınıf Bilgileri</Text>
-
                     <View style={styles.infoRow}>
                         <Text style={styles.label}>Sınıf Adı</Text>
-                        <Text style={styles.value}>{info.name}</Text>
+                        <Text style={styles.value}>{info?.name ?? "-"}</Text>
                     </View>
-
                     <View style={styles.infoRow}>
                         <Text style={styles.label}>Öğretmen</Text>
-                        <Text style={styles.value}>{info.teacher}</Text>
+                        <Text style={styles.value}>{teacherName}</Text>
                     </View>
-
                     <View style={styles.infoRow}>
                         <Text style={styles.label}>Toplam Ödev</Text>
                         <Text style={styles.value}>{assignments.length}</Text>
                     </View>
 
-                    {/* İlerleme */}
                     <View style={{ marginTop: 10 }}>
-                        <View style={styles.progressHeader}>
-                            <Text style={styles.label}>İlerleme Durumu</Text>
-                            <Text style={styles.labelSmall}>
-                                {completedCount} / {assignments.length} ödev tamamlandı
-                            </Text>
-                        </View>
+                        <Text style={styles.label}>{completedCount} / {assignments.length} tamamlandı</Text>
                         <View style={styles.progressBar}>
                             <View style={[styles.progressFill, { width: `${progressPercent}%` }]} />
                         </View>
-                        <Text style={styles.progressPercent}>%{progressPercent} tamamlandı</Text>
+                        <Text style={styles.progressPercent}>%{progressPercent}</Text>
                     </View>
                 </View>
 
-                {/* 🔹 Ödevler */}
+                {/* Ödevler */}
                 <View style={styles.card}>
                     <Text style={styles.cardTitle}>Verilen Ödevler</Text>
-
-                    {assignments.length === 0 && (
-                        <Text style={{ color: "#888", marginTop: 10 }}>Bu sınıfa henüz ödev verilmemiş.</Text>
-                    )}
-
-                    {assignments.map(a => {
+                    {assignments.map((a: any) => {
                         const isCompleted = completedMap[a._id];
                         const isPastDue = a.due_date ? new Date(a.due_date) < today : false;
 
@@ -81,28 +119,25 @@ export default function StudentClassDetailScreen() {
                                 <TouchableOpacity
                                     style={[
                                         styles.button,
-                                        isCompleted ? styles.buttonOutline :
-                                            isPastDue ? styles.buttonDisabled : {}
+                                        isCompleted
+                                            ? styles.buttonOutline
+                                            : isPastDue
+                                                ? styles.buttonDisabled
+                                                : {}
                                     ]}
-                                    disabled={isPastDue}
-                                    onPress={() => { /* Ödev sayfasına yönlendirme */ }}
                                 >
-                                    <Text style={[
-                                        styles.buttonText,
-                                        isCompleted ? styles.buttonOutlineText : {}
-                                    ]}>
+                                    <Text style={styles.buttonText}>
                                         {isCompleted ? "Sonuçlarımı Gör" : isPastDue ? "Süresi Doldu" : "Ödevi Çöz"}
                                     </Text>
                                 </TouchableOpacity>
                             </View>
-                        )
+                        );
                     })}
                 </View>
             </ScrollView>
         </SafeAreaView>
     );
 }
-
 const styles = StyleSheet.create({
     safe: { flex: 1, backgroundColor: "#f8fafc" },
     container: { padding: 15 },

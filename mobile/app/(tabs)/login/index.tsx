@@ -17,9 +17,18 @@ export default function LoginScreen() {
     const handleLogin = async () => {
         try {
             const resultAction = await dispatch(loginUser({ email, password }));
+
             if (loginUser.fulfilled.match(resultAction)) {
-                // Login başarılı, yönlendir
-                router.push("//(tabs)");
+                const loggedInUser = resultAction.payload.user;
+
+                // Role’a göre yönlendirme
+                if (loggedInUser.role === "student") {
+                    router.replace("/(tabs)/student");
+                } else if (loggedInUser.role === "teacher") {
+                    router.replace("/(tabs)/student");
+                } else {
+                    router.push("//(tabs)"); // fallback
+                }
             }
         } catch (err) {
             console.log("Login error:", err);

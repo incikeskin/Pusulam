@@ -1,61 +1,91 @@
-import { View, Text, SafeAreaView, StyleSheet, Image, ScrollView, TouchableOpacity } from "react-native";
+import {
+    View,
+    Text,
+    SafeAreaView,
+    StyleSheet,
+    Image,
+    ScrollView,
+    TouchableOpacity
+} from "react-native";
 import { useRouter } from "expo-router";
+import { useEffect } from "react";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import { getStudentClasses } from "@/store/student/studentThunks";
+import { logout } from "@/store/auth/authSlice";
 
 export default function StudentPanel() {
     const router = useRouter();
+    const dispatch = useAppDispatch();
 
-    // Şimdilik statik kullanıcı ve sınıf verisi
-    const user = {
-        first_name: "Ahmet",
-        last_name: "Yılmaz",
-        role: "student",
+    const user = useAppSelector((state) => state.auth.user);
+    const { classes, loadingClasses, classesError } = useAppSelector(
+        (state) => state.student
+    );
+
+    useEffect(() => {
+        dispatch(getStudentClasses());
+    }, [dispatch]);
+
+    const handleLogout = () => {
+        dispatch(logout());
+        router.replace("/login");
     };
 
-    const classes = [
-        { _id: "1", name: "Matematik 9A" },
-        { _id: "2", name: "Fen Bilgisi 9A" },
-        { _id: "3", name: "Tarih 9A" },
-    ];
+    const handleClassPress = (classId: string) => {
+        // 🚨 Önemli: parametreyi doğru gönderiyoruz
+        router.push({
+            pathname: "/student/class/[classID]",
+            params: { classID : classId}
+        });
+    };
 
     return (
         <SafeAreaView style={styles.safe}>
-            {/* Header */}
             <View style={styles.header}>
                 <Image
                     source={require("../../../assets/images/pusulam_logo.png")}
                     style={styles.logo}
                 />
+
                 <View style={styles.userInfo}>
-                    <Text style={styles.userName}>{user.first_name} {user.last_name}</Text>
-                    <Text style={styles.userRole}>{user.role === "student" ? "Öğrenci" : ""}</Text>
+                    <Text style={styles.userName}>
+                        {user ? `${user.first_name} ${user.last_name}` : ""}
+                    </Text>
+                    <Text style={styles.userRole}>Öğrenci</Text>
                 </View>
 
                 <View style={styles.headerButtons}>
                     <TouchableOpacity
                         style={styles.accountBtn}
-                        onPress={() => router.push("//(tabs)/student/index")}
+                        onPress={() => router.push("/student")}
                     >
                         <Text style={styles.accountText}>Hesabım</Text>
                     </TouchableOpacity>
 
                     <TouchableOpacity
                         style={styles.logoutBtn}
-                        onPress={() => router.push("/login")}
+                        onPress={handleLogout}
                     >
                         <Text style={styles.logoutText}>Çıkış</Text>
                     </TouchableOpacity>
                 </View>
             </View>
 
-            {/* Main content */}
-            <ScrollView style={styles.main} contentContainerStyle={{ paddingBottom: 20 }}>
+            <ScrollView
+                style={styles.main}
+                contentContainerStyle={{ paddingBottom: 20 }}
+            >
                 <Text style={styles.title}>Sınıflarım</Text>
+
+                {loadingClasses && <Text style={{ marginTop: 10 }}>Sınıflar yükleniyor...</Text>}
+                {classesError && <Text style={{ color: "red", marginTop: 10 }}>{classesError}</Text>}
+
                 <View style={styles.classesContainer}>
-                    {classes.map(cls => (
+                    {classes.map((cls) => (
                         <TouchableOpacity
                             key={cls._id}
                             style={styles.classCard}
-                            onPress={() => router.push(`//(tabs)/student/index`)}
+                            onPress={() => handleClassPress(cls._id)} // parametreyi buradan gönderiyoruz
                         >
                             <Text style={styles.className}>{cls.name}</Text>
                         </TouchableOpacity>
@@ -65,7 +95,6 @@ export default function StudentPanel() {
         </SafeAreaView>
     );
 }
-
 const styles = StyleSheet.create({
     safe: { flex: 1, backgroundColor: "#f8fafc" },
     header: {

@@ -15,17 +15,16 @@ export const loginUser = createAsyncThunk<
 
         console.log("Backend cevabı:", response.data); // test için log
 
-        // Eğer response.data.data bir array ise -> user = array[0], token yoksa test için ayrı tut
-        const data = Array.isArray(response.data.data) ? response.data.data[0] : response.data.data;
+        const data = response.data.data; // artık direkt { token, user }
 
-        const token = data.token; // token backend’den gelmiyorsa JWT oluşturma logic ile gelmeli
-        const user = data.user || data; // user objesi yoksa data’yı user olarak al
+        const token = data.token;
+        const user = data.user;
 
-        if (!token) {
-            console.log("Token alınamadı");
-            return rejectWithValue("Token alınamadı");
+        if (!token || !user) {
+            return rejectWithValue("Token veya user bilgisi eksik");
         }
 
+        // AsyncStorage
         await AsyncStorage.setItem("token", token);
         await AsyncStorage.setItem("user", JSON.stringify(user));
 
