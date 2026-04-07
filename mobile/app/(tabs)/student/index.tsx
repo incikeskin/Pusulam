@@ -34,7 +34,7 @@ export default function StudentPanel() {
     const handleClassPress = (classId: string) => {
         // 🚨 Önemli: parametreyi doğru gönderiyoruz
         router.push({
-            pathname: "/student/class/[classID]",
+            pathname: "/student/class/[clas]",
             params: { classID : classId}
         });
     };

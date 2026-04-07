@@ -25,7 +25,7 @@ export default function LoginScreen() {
                 if (loggedInUser.role === "student") {
                     router.replace("/(tabs)/student");
                 } else if (loggedInUser.role === "teacher") {
-                    router.replace("/(tabs)/student");
+                    router.replace("/(tabs)/teacher");
                 } else {
                     router.push("//(tabs)"); // fallback
                 }

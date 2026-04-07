@@ -4,6 +4,8 @@ import studentReducer from "./student/studentSlice";
 import classDetailReducer from "./classDetail/classDetailSlice";
 import assignmentResultReducer from "./assignmentResult/assignmentResultSlice";
 import assignmentDetailReducer from "./assignmentDetail/assignmentDetailSlice";
+import createClassReducer from "./createClass/createClassSlice";
+import teacherReducer from "./teacher/teacherSlice";
 
 export const store = configureStore({
     reducer: {
@@ -12,6 +14,8 @@ export const store = configureStore({
         classDetail: classDetailReducer,
         assignmentResult: assignmentResultReducer,
         assignmentDetail: assignmentDetailReducer,
+        createClass: createClassReducer,
+        teacher: teacherReducer,
     },
 });
 
