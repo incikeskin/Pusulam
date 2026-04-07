@@ -1,4 +1,5 @@
 import { useEffect, useMemo } from "react";
+import { useRouter } from "expo-router";
 import {
     View,
     Text,
@@ -20,7 +21,7 @@ import { checkAssignmentCompleted } from "../../../../../store/assignmentResult/
 export default function StudentClassDetailScreen() {
     const params = useLocalSearchParams<{ classID: string }>();
     const classId = params.classID;
-
+    const router = useRouter();
     const dispatch = useAppDispatch();
     const { info, assignments, loading, error } = useAppSelector(
         (state) => state.classDetail
@@ -119,15 +120,28 @@ export default function StudentClassDetailScreen() {
                                 <TouchableOpacity
                                     style={[
                                         styles.button,
-                                        isCompleted
+                                        (isPastDue || isCompleted)
                                             ? styles.buttonOutline
-                                            : isPastDue
-                                                ? styles.buttonDisabled
-                                                : {}
+                                            : {}
                                     ]}
+                                    activeOpacity={0.7}
+                                    onPress={() => {
+                                        if (isPastDue || isCompleted) {
+                                            router.push(`/student/assignment/${a._id}/result`);
+                                        } else {
+                                            router.push(`/student/assignment/${a._id}/solve`);
+                                        }
+                                    }}
                                 >
-                                    <Text style={styles.buttonText}>
-                                        {isCompleted ? "Sonuçlarımı Gör" : isPastDue ? "Süresi Doldu" : "Ödevi Çöz"}
+                                    <Text
+                                        style={[
+                                            styles.buttonText,
+                                            (isPastDue || isCompleted) && { color: "#1087BB" } // outline için koyu renk
+                                        ]}
+                                    >
+                                        {(isPastDue || isCompleted)
+                                            ? "Sonuçları Gör"
+                                            : "Ödevi Çöz"}
                                     </Text>
                                 </TouchableOpacity>
                             </View>
