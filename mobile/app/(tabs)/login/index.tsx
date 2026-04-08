@@ -82,7 +82,7 @@ export default function LoginScreen() {
                 </View>
 
                 {/* Kayıt Ol */}
-                <TouchableOpacity onPress={() => router.push("//(tabs)")}>
+                <TouchableOpacity onPress={() => router.push("/register")}>
                     <Text style={styles.registerText}>
                         Hesabın yok mu? <Text style={styles.registerLink}>Kayıt Ol</Text>
                     </Text>

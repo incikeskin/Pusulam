@@ -7,10 +7,12 @@ import {
     TouchableOpacity,
     Modal,
     TextInput,
-    ActivityIndicator
+    ActivityIndicator,
+    Image
 } from "react-native";
 import { useRouter } from "expo-router";
-
+import { Ionicons } from "@expo/vector-icons";
+import { logout } from "../../../store/auth/authSlice";
 import { useAppDispatch, useAppSelector } from "../../../store/hooks";
 import { getTeacherClasses } from "../../../store/teacher/teacherThunks";
 import { createClass } from "../../../store/createClass/createClassThunks";
@@ -22,7 +24,10 @@ export default function TeacherPage() {
 
     const { classes, loading } = useAppSelector((state) => state.teacher);
     const user = useAppSelector((state) => state.auth.user);
-
+    const handleLogout = () => {
+        dispatch(logout());
+        router.replace("/login");
+    };
     const {
         loading: createLoading,
         success,
@@ -33,17 +38,10 @@ export default function TeacherPage() {
     const [openModal, setOpenModal] = useState(false);
     const [className, setClassName] = useState("");
 
-    // ✅ Teacher classes yükle
     useEffect(() => {
         dispatch(getTeacherClasses());
     }, [dispatch]);
 
-    // ✅ classes state log
-    useEffect(() => {
-        console.log("Teacher classes:", classes);
-    }, [classes]);
-
-    // ✅ Yeni sınıf oluşturulduktan sonra listeleri güncelle
     useEffect(() => {
         if (success && createdClass) {
             dispatch(getTeacherClasses());
@@ -56,46 +54,74 @@ export default function TeacherPage() {
     const renderItem = ({ item }: any) => (
         <TouchableOpacity
             style={styles.card}
-            onPress={() => router.push(`/teacher/class/${item._id}`)} // absolute path
+            activeOpacity={0.8}
+            onPress={() => router.push(`/teacher/class/${item._id}`)}
         >
-            <Text style={styles.className}>{item.name}</Text>
+            <View style={styles.cardContent}>
+                <Text style={styles.className}>{item.name}</Text>
+                <Text style={styles.cardSub}>Detayları görüntüle →</Text>
+            </View>
         </TouchableOpacity>
     );
 
     return (
-        <View style={styles.container}>
+        <View style={{ flex: 1, backgroundColor: "#F8FAFC" }}>
             {/* HEADER */}
             <View style={styles.header}>
-                <Text style={styles.title}>Pusulam</Text>
-                <Text style={styles.user}>
-                    {user ? `${user.first_name} ${user.last_name}` : "Öğretmen"}
-                </Text>
-            </View>
+                <Image
+                    source={require("../../../assets/images/pusulam_logo.png")}
+                    style={styles.logo}
+                />
 
-            {/* TITLE + BUTTON */}
+                <View style={styles.userInfo}>
+                    <Text style={styles.userName}>
+                        {user ? `${user.first_name} ${user.last_name}` : ""}
+                    </Text>
+                    <Text style={styles.userRole}>Öğretmen</Text>
+                </View>
+
+                <View style={styles.headerButtons}>
+                    <TouchableOpacity
+                        style={styles.accountBtn}
+                        onPress={() => router.push("/teacher")}
+                    >
+                        <Text style={styles.accountText}>Hesabım</Text>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity
+                        style={styles.logoutBtn}
+                        onPress={handleLogout}
+                    >
+                        <Text style={styles.logoutText}>Çıkış</Text>
+                    </TouchableOpacity>
+                </View>
+            </View>
+            <View style={styles.container} >
+            {/* TITLE */}
             <View style={styles.topRow}>
                 <Text style={styles.pageTitle}>Sınıflarım</Text>
 
                 <TouchableOpacity
                     style={styles.addButton}
+                    activeOpacity={0.8}
                     onPress={() => setOpenModal(true)}
                 >
-                    <Text style={styles.addButtonText}>+ Sınıf Oluştur</Text>
+                    <Ionicons name="add" size={24} color="white" />
                 </TouchableOpacity>
             </View>
 
             {/* LIST */}
             {loading ? (
-                <ActivityIndicator size="large" color="#1087BB" style={{ marginTop: 20 }} />
+                <ActivityIndicator size="large" color="#1087BB" style={{ marginTop: 40 }} />
             ) : classes.length === 0 ? (
-                <Text style={{ textAlign: "center", marginTop: 20 }}>Henüz sınıf yok</Text>
+                <Text style={styles.emptyText}>Henüz sınıf oluşturulmadı</Text>
             ) : (
                 <FlatList
                     data={classes}
                     keyExtractor={(item) => item._id}
                     renderItem={renderItem}
-                    contentContainerStyle={{ paddingBottom: 20 }}
-                    style={{ width: "100%" }}
+                    contentContainerStyle={{ paddingBottom: 30 }}
+                    showsVerticalScrollIndicator={false}
                 />
             )}
 
@@ -103,13 +129,14 @@ export default function TeacherPage() {
             <Modal visible={openModal} transparent animationType="fade">
                 <View style={styles.modalOverlay}>
                     <View style={styles.modal}>
-                        <Text style={styles.modalTitle}>Yeni Sınıf Oluştur</Text>
+                        <Text style={styles.modalTitle}>Yeni Sınıf</Text>
 
                         <TextInput
-                            placeholder="Sınıf adı"
+                            placeholder="Sınıf adı gir..."
                             value={className}
                             onChangeText={setClassName}
                             style={styles.input}
+                            placeholderTextColor="#94A3B8"
                         />
 
                         {error && <Text style={styles.error}>{error}</Text>}
@@ -119,15 +146,18 @@ export default function TeacherPage() {
                                 onPress={() => setOpenModal(false)}
                                 style={styles.cancelBtn}
                             >
-                                <Text>İptal</Text>
+                                <Text style={{ color: "#334155" }}>İptal</Text>
                             </TouchableOpacity>
 
                             <TouchableOpacity
                                 disabled={createLoading || !className}
                                 onPress={() => dispatch(createClass({ name: className }))}
-                                style={[styles.createBtn, (createLoading || !className) && { opacity: 0.5 }]}
+                                style={[
+                                    styles.createBtn,
+                                    (createLoading || !className) && { opacity: 0.5 }
+                                ]}
                             >
-                                <Text style={{ color: "white" }}>
+                                <Text style={{ color: "white", fontWeight: "600" }}>
                                     {createLoading ? "Oluşturuluyor..." : "Oluştur"}
                                 </Text>
                             </TouchableOpacity>
@@ -135,27 +165,217 @@ export default function TeacherPage() {
                     </View>
                 </View>
             </Modal>
+            </View>
         </View>
+
     );
 }
 
 const styles = StyleSheet.create({
-    container: { flex: 1, backgroundColor: "#F1F5F9", padding: 16 },
-    header: { marginBottom: 16 },
-    title: { fontSize: 24, fontWeight: "bold", color: "#1087BB" },
-    user: { fontSize: 16, color: "#334155", marginTop: 4 },
-    topRow: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 12 },
-    pageTitle: { fontSize: 20, fontWeight: "bold", color: "#1087BB" },
-    addButton: { backgroundColor: "#1087BB", paddingVertical: 8, paddingHorizontal: 12, borderRadius: 8 },
-    addButtonText: { color: "white", fontWeight: "bold" },
-    card: { backgroundColor: "white", padding: 16, borderRadius: 8, marginBottom: 12, shadowColor: "#000", shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.1, shadowRadius: 4, elevation: 2 },
-    className: { fontSize: 16, fontWeight: "bold", color: "#1087BB" },
-    modalOverlay: { flex: 1, backgroundColor: "rgba(0,0,0,0.4)", justifyContent: "center", alignItems: "center" },
-    modal: { backgroundColor: "white", padding: 20, borderRadius: 8, width: "90%" },
-    modalTitle: { fontSize: 18, fontWeight: "bold", color: "#1087BB", marginBottom: 12 },
-    input: { borderWidth: 1, borderColor: "#CBD5E1", borderRadius: 6, padding: 8, marginBottom: 12 },
-    error: { color: "red", marginBottom: 8 },
-    modalButtons: { flexDirection: "row", justifyContent: "flex-end", gap: 12 },
-    cancelBtn: { paddingVertical: 8, paddingHorizontal: 12, borderWidth: 1, borderColor: "#CBD5E1", borderRadius: 6 },
-    createBtn: { paddingVertical: 8, paddingHorizontal: 12, backgroundColor: "#1087BB", borderRadius: 6 }
+    container: {
+        flex: 1,
+        backgroundColor: "#F8FAFC",
+        paddingHorizontal: 16,
+        paddingTop: 50, // ✅ üst boşluk düzeltildi
+    },
+
+    header: {
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "space-between",
+        backgroundColor: "#1087BB",
+        paddingHorizontal: 15,
+        paddingVertical: 10,
+        paddingTop: 20,
+        marginBottom: 16,
+    },
+
+    logo: {
+        width: 50,
+        height: 50,
+        resizeMode: "contain",
+    },
+
+    userInfo: {
+        flex: 1,
+        marginLeft: 10,
+    },
+
+    userName: {
+        color: "white",
+        fontWeight: "bold",
+        fontSize: 16,
+    },
+
+    userRole: {
+        color: "white",
+        fontSize: 12,
+    },
+
+    headerButtons: {
+        flexDirection: "row",
+        gap: 10,
+    },
+
+    accountBtn: {
+        paddingVertical: 6,
+        paddingHorizontal: 12,
+        backgroundColor: "white",
+        borderRadius: 6,
+    },
+
+    accountText: {
+        color: "#1087BB",
+        fontWeight: "bold",
+    },
+
+    logoutBtn: {
+        paddingVertical: 6,
+        paddingHorizontal: 12,
+        backgroundColor: "white",
+        borderRadius: 6,
+    },
+
+    logoutText: {
+        color: "#1087BB",
+        fontWeight: "bold",
+    },
+
+    headerLeft: {
+        flexDirection: "row",
+        alignItems: "center",
+        gap: 10,
+    },
+
+
+    title: {
+        fontSize: 26,
+        fontWeight: "bold",
+        color: "#1087BB",
+    },
+
+    user: {
+        fontSize: 14,
+        color: "#64748B",
+        marginTop: 6,
+    },
+
+    topRow: {
+        flexDirection: "row",
+        justifyContent: "space-between",
+        alignItems: "center",
+        marginBottom: 16,
+    },
+
+    pageTitle: {
+        fontSize: 20,
+        fontWeight: "700",
+        color: "#0F172A",
+    },
+
+    addButton: {
+        width: 42,
+        height: 42,
+        borderRadius: 12,
+        backgroundColor: "#1087BB",
+        justifyContent: "center",
+        alignItems: "center",
+    },
+
+    addButtonText: {
+        color: "white",
+        fontSize: 26,
+        fontWeight: "bold",
+        lineHeight: 26, // 🔥 kritik
+        textAlign: "center",
+        includeFontPadding: false,
+    },
+
+    card: {
+        backgroundColor: "white",
+        borderRadius: 16,
+        padding: 18,
+        marginBottom: 14,
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 6 },
+        shadowOpacity: 0.05,
+        shadowRadius: 10,
+        elevation: 3,
+    },
+
+    cardContent: {
+        gap: 6,
+    },
+
+    className: {
+        fontSize: 16,
+        fontWeight: "600",
+        color: "#0F172A",
+    },
+
+    cardSub: {
+        fontSize: 13,
+        color: "#94A3B8",
+    },
+
+    emptyText: {
+        textAlign: "center",
+        marginTop: 50,
+        color: "#94A3B8",
+    },
+
+    modalOverlay: {
+        flex: 1,
+        backgroundColor: "rgba(0,0,0,0.4)",
+        justifyContent: "center",
+        alignItems: "center",
+    },
+
+    modal: {
+        backgroundColor: "white",
+        padding: 20,
+        borderRadius: 16,
+        width: "90%",
+    },
+
+    modalTitle: {
+        fontSize: 18,
+        fontWeight: "700",
+        color: "#0F172A",
+        marginBottom: 14,
+    },
+
+    input: {
+        borderWidth: 1,
+        borderColor: "#E2E8F0",
+        borderRadius: 10,
+        padding: 10,
+        marginBottom: 12,
+        fontSize: 14,
+    },
+
+    error: {
+        color: "red",
+        marginBottom: 8,
+    },
+
+    modalButtons: {
+        flexDirection: "row",
+        justifyContent: "flex-end",
+        gap: 10,
+    },
+
+    cancelBtn: {
+        paddingVertical: 10,
+        paddingHorizontal: 14,
+        borderRadius: 10,
+        backgroundColor: "#F1F5F9",
+    },
+
+    createBtn: {
+        paddingVertical: 10,
+        paddingHorizontal: 16,
+        backgroundColor: "#1087BB",
+        borderRadius: 10,
+    },
 });

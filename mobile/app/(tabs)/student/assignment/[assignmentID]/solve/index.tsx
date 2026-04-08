@@ -158,75 +158,94 @@ export default function SolveAssignmentScreen() {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: "#f5f5f5"
+        backgroundColor: "#f8fafc",
+        padding: 15,
+        paddingTop: 20, // üst boşluk ekledik
     },
     header: {
-        fontSize: 22,
-        fontWeight: "bold",
-        marginBottom: 8
+        fontSize: 20,
+        fontWeight: "700",
+        color: "#0F172A",
+        marginBottom: 8,
     },
     description: {
-        color: "#666",
-        marginBottom: 16
+        color: "#64748B",
+        marginBottom: 16,
+        fontSize: 14,
     },
     progressCard: {
         backgroundColor: "#fff",
-        padding: 12,
-        borderRadius: 10,
-        marginBottom: 16
+        padding: 16,
+        borderRadius: 16,
+        marginBottom: 16,
+        shadowColor: "#000",
+        shadowOpacity: 0.05,
+        shadowRadius: 6,
+        elevation: 3,
     },
     progressRow: {
         flexDirection: "row",
         justifyContent: "space-between",
-        marginBottom: 6
+        marginBottom: 6,
     },
     progressBarBackground: {
         height: 8,
-        backgroundColor: "#ddd",
-        borderRadius: 10
+        backgroundColor: "#e5e7eb",
+        borderRadius: 4,
     },
     progressBarFill: {
         height: 8,
         backgroundColor: "#1087BB",
-        borderRadius: 10
+        borderRadius: 4,
     },
     card: {
         backgroundColor: "#fff",
-        padding: 12,
-        borderRadius: 10,
-        marginBottom: 10
+        padding: 16,
+        borderRadius: 16,
+        marginBottom: 12,
+        shadowColor: "#000",
+        shadowOpacity: 0.05,
+        shadowRadius: 4,
+        elevation: 2,
     },
     questionTitle: {
         fontWeight: "600",
-        marginBottom: 8
+        marginBottom: 8,
+        color: "#0F172A",
     },
     optionButton: {
-        padding: 10,
+        paddingVertical: 10,
+        paddingHorizontal: 12,
         borderWidth: 1,
-        borderColor: "#ddd",
-        borderRadius: 8,
-        marginBottom: 6
+        borderColor: "#e5e7eb",
+        borderRadius: 12,
+        marginBottom: 8,
+        backgroundColor: "#f9fafb",
     },
     optionSelected: {
         borderColor: "#1087BB",
-        backgroundColor: "#1087BB20"
+        backgroundColor: "#1087BB20",
     },
     optionText: {
-        color: "#333"
+        color: "#0F172A",
+        fontSize: 14,
     },
     finishButton: {
-        marginTop: 20,
+        marginTop: 24,
         backgroundColor: "#1087BB",
-        padding: 14,
-        borderRadius: 10,
-        alignItems: "center"
+        paddingVertical: 14,
+        paddingHorizontal: 16,
+        borderRadius: 16,
+        alignItems: "center",
     },
     finishButtonText: {
         color: "#fff",
-        fontWeight: "bold"
+        fontWeight: "600",
+        fontSize: 14,
     },
     centerText: {
         textAlign: "center",
-        marginTop: 50
-    }
+        marginTop: 50,
+        color: "#64748B",
+    },
 });

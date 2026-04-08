@@ -81,7 +81,12 @@ export default function StudentAssignmentResultScreen() {
 
     return (
         <ScrollView style={styles.container} contentContainerStyle={{ padding: 16 }}>
-
+            <TouchableOpacity
+                style={styles.backButton}
+                onPress={() => router.push("/student")}
+            >
+                <Text style={styles.backText}>← Geri</Text>
+            </TouchableOpacity>
             {/* 🔹 HEADER */}
             <Text style={styles.header}>Ödev Sonucu</Text>
 
@@ -202,54 +207,75 @@ export default function StudentAssignmentResultScreen() {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: "#f5f5f5"
+        backgroundColor: "#f8fafc",
+        padding: 15,
+        paddingTop: 20, // üst boşluk ekledik
     },
+    backButton: { marginBottom: 10 },
+    backText: { color: "#1087BB", fontSize: 14 },
     header: {
         fontSize: 20,
-        fontWeight: "bold",
-        marginBottom: 12
+        fontWeight: "700",
+        color: "#0F172A",
+        marginBottom: 12,
     },
     card: {
         backgroundColor: "#fff",
-        padding: 16,
-        borderRadius: 12,
-        elevation: 2
+        padding: 18,
+        borderRadius: 16,
+        marginBottom: 15,
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 6 },
+        shadowOpacity: 0.05,
+        shadowRadius: 10,
+        elevation: 3,
     },
     resultRow: {
         flexDirection: "row",
-        justifyContent: "space-between"
+        justifyContent: "space-between",
+        gap: 10,
     },
     resultItem: {
-        alignItems: "center"
+        alignItems: "center",
+        flex: 1,
     },
     resultNumber: {
         fontSize: 20,
-        fontWeight: "bold"
+        fontWeight: "600",
+        color: "#0F172A",
     },
     resultLabel: {
         fontSize: 12,
-        color: "#666"
+        color: "#94A3B8",
+        marginTop: 2,
     },
     answerCard: {
         flexDirection: "row",
-        backgroundColor: "#fff",
+        backgroundColor: "#f9fafb",
         padding: 12,
-        borderRadius: 10,
-        marginBottom: 8
+        borderRadius: 12,
+        marginBottom: 10,
+        shadowColor: "#000",
+        shadowOpacity: 0.05,
+        shadowRadius: 3,
+        elevation: 1,
     },
     button: {
         marginTop: 20,
         backgroundColor: "#1087BB",
-        padding: 14,
-        borderRadius: 10,
-        alignItems: "center"
+        paddingVertical: 12,
+        paddingHorizontal: 16,
+        borderRadius: 12,
+        alignItems: "center",
     },
     buttonText: {
         color: "#fff",
-        fontWeight: "bold"
+        fontWeight: "600",
+        fontSize: 14,
     },
     centerText: {
         textAlign: "center",
-        marginTop: 50
-    }
+        marginTop: 50,
+        color: "#64748B",
+    },
 });

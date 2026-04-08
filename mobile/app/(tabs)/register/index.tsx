@@ -176,51 +176,56 @@ const styles = StyleSheet.create({
         flex: 1,
         paddingHorizontal: 20,
         justifyContent: "center",
+        paddingTop: 40, // üstten boşluk açıldı, logo ekran dışına çıkmasın
     },
     logoContainer: {
         alignItems: "center",
-        marginBottom: 30,
+        marginBottom: 20, // biraz daha sıkıştırıldı
     },
-    logo: { width: 80, height: 80, resizeMode: "contain" },
+    logo: {
+        width: 60,  // küçültüldü
+        height: 60,
+        resizeMode: "contain"
+    },
     logoText: {
         color: "#1087BB",
-        fontSize: 28,
+        fontSize: 22, // küçültüldü
         fontWeight: "bold",
-        marginTop: 10,
+        marginTop: 6,
     },
     title: {
-        fontSize: 24,
+        fontSize: 20, // küçültüldü
         fontWeight: "bold",
         color: "#1087BB",
         textAlign: "center",
-        marginBottom: 20,
+        marginBottom: 16, // biraz sıkıştırıldı
     },
-    form: { gap: 15 },
+    form: { gap: 12 }, // gap küçültüldü
     input: {
         width: "100%",
         backgroundColor: "white",
-        padding: 15,
+        padding: 12, // padding küçültüldü
         borderRadius: 10,
         borderWidth: 1,
         borderColor: "#d1d5db",
-        fontSize: 16,
+        fontSize: 14, // font küçültüldü
     },
     button: {
         backgroundColor: "#1087BB",
-        padding: 15,
+        padding: 12, // padding küçültüldü
         borderRadius: 10,
         marginTop: 10,
     },
     buttonText: {
         color: "white",
         textAlign: "center",
-        fontSize: 16,
+        fontSize: 14, // font küçültüldü
         fontWeight: "bold"
     },
     registerText: {
         textAlign: "center",
-        marginTop: 25,
-        fontSize: 14,
+        marginTop: 20, // biraz sıkıştırıldı
+        fontSize: 13, // font küçültüldü
         color: "#555",
     },
     registerLink: {
@@ -236,7 +241,7 @@ const styles = StyleSheet.create({
     },
     roleButton: {
         flex: 1,
-        paddingVertical: 12,
+        paddingVertical: 10, // küçültüldü
         backgroundColor: "#e5e7eb",
         borderRadius: 10,
         alignItems: "center",
@@ -245,7 +250,7 @@ const styles = StyleSheet.create({
         backgroundColor: "#1087BB",
     },
     roleText: {
-        fontSize: 16,
+        fontSize: 14, // küçültüldü
         color: "#555",
     },
     roleTextActive: {

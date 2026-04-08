@@ -77,6 +77,12 @@ export default function StudentClassDetailScreen() {
     return (
         <SafeAreaView style={styles.safe}>
             <ScrollView style={styles.container} contentContainerStyle={{ paddingBottom: 40 }}>
+                <TouchableOpacity
+                    style={styles.backButton}
+                    onPress={() => router.push("/student")}
+                >
+                    <Text style={styles.backText}>← Geri</Text>
+                </TouchableOpacity>
                 {/* Sınıf Bilgileri */}
                 <View style={styles.card}>
                     <Text style={styles.cardTitle}>Sınıf Bilgileri</Text>
@@ -153,8 +159,14 @@ export default function StudentClassDetailScreen() {
     );
 }
 const styles = StyleSheet.create({
-    safe: { flex: 1, backgroundColor: "#f8fafc" },
-    container: { padding: 15 },
+    safe: {
+        flex: 1,
+        backgroundColor: "#f8fafc",
+        paddingTop: 20, // ✅ ekran üstüne yapışmayı önler
+    },
+    container: {
+        padding: 15,
+    },
 
     backButton: { marginBottom: 10 },
     backText: { color: "#1087BB", fontSize: 14 },

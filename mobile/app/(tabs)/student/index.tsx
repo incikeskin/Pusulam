@@ -34,7 +34,7 @@ export default function StudentPanel() {
     const handleClassPress = (classId: string) => {
         // 🚨 Önemli: parametreyi doğru gönderiyoruz
         router.push({
-            pathname: "/student/class/[clas]",
+            pathname: "/student/class/[classID]",
             params: { classID : classId}
         });
     };
@@ -104,6 +104,7 @@ const styles = StyleSheet.create({
         backgroundColor: "#1087BB",
         paddingHorizontal: 15,
         paddingVertical: 10,
+        paddingTop: 20, // ✅ EKLENDİ (ekran üstüne yapışmayı çözer)
     },
     logo: { width: 50, height: 50, resizeMode: "contain" },
     userInfo: { flex: 1, marginLeft: 10 },
@@ -129,9 +130,9 @@ const styles = StyleSheet.create({
 
     main: { flex: 1, padding: 15 },
     title: { fontSize: 22, fontWeight: "bold", color: "#1087BB", marginBottom: 15 },
-    classesContainer: { flexDirection: "row", flexWrap: "wrap", gap: 12, justifyContent: "space-between" },
+    classesContainer: { flexDirection: "column", flexWrap: "wrap", gap: 12, justifyContent: "space-between" },
     classCard: {
-        width: "48%",
+        width: "100%", // ✅ DEĞİŞTİ
         backgroundColor: "white",
         padding: 15,
         borderRadius: 10,
