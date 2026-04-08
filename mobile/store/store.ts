@@ -6,6 +6,8 @@ import assignmentResultReducer from "./assignmentResult/assignmentResultSlice";
 import assignmentDetailReducer from "./assignmentDetail/assignmentDetailSlice";
 import createClassReducer from "./createClass/createClassSlice";
 import teacherReducer from "./teacher/teacherSlice";
+import studentClassCreateReducer from "./studentClassCreate/studentClassCreateSlice";
+import studentSearchReducer from "./studentSearch/studentSearchSlice";
 
 export const store = configureStore({
     reducer: {
@@ -16,6 +18,8 @@ export const store = configureStore({
         assignmentDetail: assignmentDetailReducer,
         createClass: createClassReducer,
         teacher: teacherReducer,
+        studentClassCreate: studentClassCreateReducer,
+        studentSearch: studentSearchReducer,
     },
 });
 
