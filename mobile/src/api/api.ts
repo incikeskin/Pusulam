@@ -1,5 +1,5 @@
 // src/api/api.ts
-const API_BASE_URL = "http://192.168.1.180:5000"; // backend IP + portu güncelle
+const API_BASE_URL = "http://172.16.80.100:5000"; // backend IP + portu güncelle
 
 interface FetchOptions extends RequestInit {
     headers?: Record<string, string>;

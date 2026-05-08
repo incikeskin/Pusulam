@@ -33,10 +33,10 @@ export const loginUser = createAsyncThunk<
         if (isAxiosError(err)) {
             const axiosErr = err as AxiosError<{ message: string }>;
             return rejectWithValue(
-                axiosErr.response?.data?.message || "Login failed"
+                axiosErr.response?.data?.message || "1Login failed"
             );
         }
-        return rejectWithValue("Login failed");
+        return rejectWithValue("2Login failed");
     }
 });
 

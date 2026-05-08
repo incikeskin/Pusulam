@@ -13,7 +13,7 @@ import {
 } from "react-native";
 import { useRoute } from "@react-navigation/native";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
-
+import { useRouter } from "expo-router";
 import {
     fetchClassInfo,
     fetchClassStudents,
@@ -31,7 +31,7 @@ import { findStudent } from "@/store/studentSearch/studentSearchThunks";
 export default function ClassDetailScreen() {
     const route = useRoute();
     const {classID} = route.params as { classID: string };
-
+    const router = useRouter();
     const dispatch = useAppDispatch();
 
     const {info, students, assignments, loading} = useAppSelector(
@@ -157,7 +157,12 @@ export default function ClassDetailScreen() {
                         </View>
                     ))}
 
-                    <TouchableOpacity style={styles.secondaryButton}>
+                    <TouchableOpacity
+                        style={styles.secondaryButton}
+                        onPress={() =>
+                            router.push(`/teacher/class/${classID}/assignments`)
+                        }
+                    >
                         <Text style={styles.secondaryButtonText}>
                             + Yeni Ödev Oluştur
                         </Text>

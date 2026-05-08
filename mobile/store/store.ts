@@ -9,6 +9,7 @@ import teacherReducer from "./teacher/teacherSlice";
 import studentClassCreateReducer from "./studentClassCreate/studentClassCreateSlice";
 import studentSearchReducer from "./studentSearch/studentSearchSlice";
 import assignmentCreateReducer from "./assignmentCreate/assignmentCreateSlice";
+import questionPoolReducer from "./questionPool/questionPoolSlice";
 
 export const store = configureStore({
     reducer: {
@@ -22,6 +23,7 @@ export const store = configureStore({
         studentClassCreate: studentClassCreateReducer,
         studentSearch: studentSearchReducer,
         assignmentCreate: assignmentCreateReducer,
+        questionPool: questionPoolReducer,
     },
 });
 
