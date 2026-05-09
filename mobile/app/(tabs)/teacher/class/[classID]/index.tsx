@@ -1,4 +1,6 @@
 import { useEffect, useState } from "react";
+import { useFocusEffect } from "expo-router";
+import { useCallback } from "react";
 import {
     View,
     Text,
@@ -68,6 +70,15 @@ export default function ClassDetailScreen() {
             dispatch(resetStudentClassCreate());
         }
     }, [addSuccess]);
+
+
+    useFocusEffect(
+        useCallback(() => {
+            if (classID) {
+                dispatch(fetchClassAssignments(classID));
+            }
+        }, [classID])
+    );
 
     const handleSearch = () => {
         dispatch(findStudent({email: searchEmail, phone_number: searchPhone}));

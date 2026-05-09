@@ -34,8 +34,9 @@ export default function CreateAssignmentPage() {
     const dispatch = useAppDispatch();
     const router = useRouter();
 
-    const { id } = useLocalSearchParams();
-    const classId = id as string;
+    const { classID } = useLocalSearchParams();
+
+    const classId = classID as string;
 
     const teacherId = useAppSelector(
         (state) => state.auth.user?._id
@@ -74,6 +75,7 @@ export default function CreateAssignmentPage() {
     useEffect(() => {
         dispatch(fetchCategories());
     }, [dispatch]);
+
 
     useEffect(() => {
         if (selectedCategoryId) {
@@ -122,14 +124,22 @@ export default function CreateAssignmentPage() {
     };
 
     const handleSubmit = () => {
-        if (!classId || !teacherId) return;
+        console.log("classId:", classId);
+        console.log("teacherId:", teacherId);
+
+        if (!classId || !teacherId) {
+            Alert.alert("Hata", "classId veya teacherId yok");
+            return;
+        }
 
         dispatch(createAssignment({ classId, teacherId }))
             .unwrap()
             .then(() => {
-                router.push(`/teacher/class/${classId}`);
+                router.replace(`/teacher/class/${classId}`);
             })
-            .catch(() => {
+            .catch((err) => {
+                console.log("CREATE ERROR:", err);
+
                 Alert.alert(
                     "Hata",
                     "Ödev oluşturulurken hata oluştu."
