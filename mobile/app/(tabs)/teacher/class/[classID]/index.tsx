@@ -160,12 +160,20 @@ export default function ClassDetailScreen() {
                     )}
 
                     {assignments.map((a) => (
-                        <View key={a._id} style={styles.assignmentItem}>
+                        <TouchableOpacity
+                            key={a._id}
+                            style={styles.assignmentItem}
+                            onPress={() =>
+                                router.push(
+                                    `/teacher/class/${classID}/assignments/${a._id}`
+                                )
+                            }
+                        >
                             <Text style={styles.bold}>{a.title}</Text>
                             <Text style={styles.gray}>
                                 Son teslim: {a.due_date || "-"}
                             </Text>
-                        </View>
+                        </TouchableOpacity>
                     ))}
 
                     <TouchableOpacity
