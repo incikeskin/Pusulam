@@ -144,6 +144,17 @@ export default function ClassDetailScreen() {
                     <Text style={styles.infoText}>👥 {students.length} öğrenci</Text>
 
                     <TouchableOpacity
+                        style={styles.analyticsButton}
+                        onPress={() =>
+                            router.push(`/teacher/class/${classID}/analytics`)
+                        }
+                    >
+                        <Text style={styles.analyticsButtonText}>
+                            📊 Sınıf Analitikleri
+                        </Text>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity
                         style={styles.primaryButton}
                         onPress={() => setModalVisible(true)}
                     >
@@ -458,5 +469,17 @@ const styles = StyleSheet.create({
     emptyText: {
         color: "gray",
         fontStyle: "italic"
+    },
+    analyticsButton: {
+        marginTop: 12,
+        padding: 12,
+        backgroundColor: "#6a1b9a",
+        borderRadius: 10,
+        alignItems: "center"
+    },
+
+    analyticsButtonText: {
+        color: "white",
+        fontWeight: "bold"
     }
 });

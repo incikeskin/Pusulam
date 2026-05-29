@@ -10,6 +10,7 @@ import studentClassCreateReducer from "./studentClassCreate/studentClassCreateSl
 import studentSearchReducer from "./studentSearch/studentSearchSlice";
 import assignmentCreateReducer from "./assignmentCreate/assignmentCreateSlice";
 import questionPoolReducer from "./questionPool/questionPoolSlice";
+import analyticsReducer from "./analytics/analyticsSlice";
 
 export const store = configureStore({
     reducer: {
@@ -24,6 +25,7 @@ export const store = configureStore({
         studentSearch: studentSearchReducer,
         assignmentCreate: assignmentCreateReducer,
         questionPool: questionPoolReducer,
+        analytics: analyticsReducer,
     },
 });
 
