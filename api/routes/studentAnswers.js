@@ -11,6 +11,7 @@ const CustomError = require("../lib/Error");
 const Enum = require("../config/Enum");
 const auth = require("../lib/auth")();
 const StudentClasses = require("../db/models/StudentClasses");
+const mongoose = require("mongoose");
 
 // 🔹 Tüm endpointlerde kimlik doğrulama
 router.all("*", auth.authenticate(), (req, res, next) => {
@@ -362,6 +363,192 @@ router.get("/class-ranking-list/:assignmentId/:classId", async (req, res) => {
     res.status(errorResponse.code).json(errorResponse);
   }
 });
+
+// 📊 ÖDEV TAMAMLAMA ORANI
+router.get("/completion-rate/:assignmentId/:classId", async (req, res) => {
+  try {
+    const { assignmentId, classId } = req.params;
+
+    // Sınıftaki tüm öğrenciler
+    const studentClasses = await StudentClasses.find({
+      class: classId
+    }).select("student");
+
+    const totalStudents = studentClasses.length;
+
+    if (!totalStudents) {
+      throw new CustomError(
+          Enum.HTTP_CODES.NOT_FOUND,
+          "Not Found",
+          "No students found in class"
+      );
+    }
+
+    const studentIds = studentClasses.map(sc =>
+        sc.student.toString()
+    );
+
+    // Bu ödeve cevap veren öğrenciler
+    const submittedStudents = await StudentAnswers.distinct("student", {
+      assignment: assignmentId,
+      student: { $in: studentIds }
+    });
+
+    const completedCount = submittedStudents.length;
+
+    const completionRate = Math.round(
+        (completedCount / totalStudents) * 100
+    );
+
+    res.json(Response.successResponse({
+      assignmentId,
+      classId,
+      totalStudents,
+      completedCount,
+      notCompletedCount: totalStudents - completedCount,
+      completionRate
+    }));
+
+  } catch (err) {
+    const errorResponse = Response.errorResponse(err);
+    res.status(errorResponse.code).json(errorResponse);
+  }
+});
+
+// 📊 EN ÇOK YANLIŞ YAPILAN SORULAR
+router.get("/most-wrong-questions/:assignmentId", async (req, res) => {
+  try {
+    const { assignmentId } = req.params;
+
+    const wrongAnswers = await StudentAnswers.aggregate([
+      {
+        $match: {
+          assignment: new mongoose.Types.ObjectId(assignmentId),
+          is_correct: false
+        }
+      },
+
+      {
+        $group: {
+          _id: "$question",
+          wrongCount: { $sum: 1 }
+        }
+      },
+
+      {
+        $sort: {
+          wrongCount: -1
+        }
+      },
+
+      {
+        $limit: 10
+      },
+
+      {
+        $lookup: {
+          from: "questions",
+          localField: "_id",
+          foreignField: "_id",
+          as: "question"
+        }
+      },
+
+      {
+        $unwind: "$question"
+      },
+
+      {
+        $project: {
+          _id: 0,
+          questionId: "$question._id",
+          text: "$question.text",
+          difficulty: "$question.difficulty",
+          wrongCount: 1
+        }
+      }
+    ]);
+
+    res.json(Response.successResponse(wrongAnswers));
+
+  } catch (err) {
+    const errorResponse = Response.errorResponse(err);
+    res.status(errorResponse.code).json(errorResponse);
+  }
+});
+
+// 📈 ÖĞRENCİ SON 5 ÖDEV PERFORMANS TRENDİ
+router.get("/student-performance-trend/:classId/:studentId", async (req, res) => {
+  try {
+    const { classId, studentId } = req.params;
+
+    // Son 5 ödev
+    const assignments = await Assignments.find({
+      class: classId
+    })
+        .sort({ created_at: -1 })
+        .limit(5);
+
+    if (!assignments.length) {
+      throw new CustomError(
+          Enum.HTTP_CODES.NOT_FOUND,
+          "Not Found",
+          "No assignments found"
+      );
+    }
+
+    const performance = [];
+
+    for (const assignment of assignments.reverse()) {
+
+      const answers = await StudentAnswers.find({
+        assignment: assignment._id,
+        student: studentId
+      });
+
+      const total = answers.length;
+
+      const correct = answers.filter(a => a.is_correct).length;
+
+      const score =
+          total > 0
+              ? Math.round((correct / total) * 100)
+              : 0;
+
+      performance.push({
+        assignmentId: assignment._id,
+        title: assignment.title,
+        score
+      });
+    }
+
+    // Trend analizi
+    let trend = "stable";
+
+    if (performance.length >= 2) {
+      const firstScore = performance[0].score;
+      const lastScore = performance[performance.length - 1].score;
+
+      if (lastScore > firstScore) {
+        trend = "up";
+      } else if (lastScore < firstScore) {
+        trend = "down";
+      }
+    }
+
+    res.json(Response.successResponse({
+      studentId,
+      trend,
+      performance
+    }));
+
+  } catch (err) {
+    const errorResponse = Response.errorResponse(err);
+    res.status(errorResponse.code).json(errorResponse);
+  }
+});
+
+
 
 
 
