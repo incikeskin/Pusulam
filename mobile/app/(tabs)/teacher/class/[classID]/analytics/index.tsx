@@ -1,8 +1,9 @@
 import React, { useEffect } from "react";
-import { View, Text, ScrollView, TouchableOpacity } from "react-native";
+import { View, Text, ScrollView, TouchableOpacity, StyleSheet } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
+import { Ionicons } from "@expo/vector-icons";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
-import { StyleSheet } from "react-native";
+
 import {
     fetchGeneralLeaderboard,
     fetchClassPerformanceTrend
@@ -16,12 +17,10 @@ export default function AnalyticsDashboard() {
 
     const {
         generalLeaderboard,
-        classPerformanceTrend,
-        loading
+        classPerformanceTrend
     } = useAppSelector(state => state.analytics);
 
     useEffect(() => {
-
         if (!classID) return;
 
         dispatch(fetchGeneralLeaderboard(classID as string));
@@ -30,130 +29,284 @@ export default function AnalyticsDashboard() {
     }, [classID]);
 
     const topStudents = generalLeaderboard?.leaderboard?.slice(0, 3) || [];
+    const trendData = classPerformanceTrend?.assignments || [];
+
+    const maxValue = Math.max(...trendData.map(i => i.averageScore || 0), 1);
 
     return (
-        <ScrollView style={{ flex: 1, padding: 16 }}>
+        <View style={styles.page}>
 
             {/* HEADER */}
-            <Text style={{ fontSize: 24, fontWeight: "bold" }}>
-                📊 Class Analytics
-            </Text>
+            <View style={styles.header}>
 
-            {/* CLASS AVERAGE */}
-            <View style={{
-                marginTop: 20,
-                padding: 16,
-                backgroundColor: "#f2f2f2",
-                borderRadius: 12
-            }}>
-                <Text style={{ fontSize: 14 }}>Class Average</Text>
-                <Text style={{ fontSize: 32, fontWeight: "bold" }}>
-                    {generalLeaderboard?.classAverage ?? 0}%
-                </Text>
+                {/* BACK BUTTON */}
+                <TouchableOpacity
+                    onPress={() => router.push(`/teacher/class/${classID}`)}
+                    style={styles.backBtn}
+                >
+                    <Ionicons name="chevron-back" size={24} color="white" />
+                </TouchableOpacity>
+
+                <View>
+                    <Text style={styles.headerTitle}>Analizler</Text>
+                    <Text style={styles.headerSub}>Sınıf Performansı</Text>
+                </View>
+
             </View>
 
-            {/* TOP 3 STUDENTS */}
-            <View style={{ marginTop: 20 }}>
+            <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
 
-                <Text style={{ fontWeight: "bold", fontSize: 16 }}>
-                    🏆 Top Students
-                </Text>
+                {/* CLASS AVERAGE */}
+                <View style={styles.card}>
+                    <Text style={styles.cardLabel}>Ortalama Sınıf Skoru</Text>
+                    <Text style={styles.cardValue}>
+                        {generalLeaderboard?.classAverage ?? 0}%
+                    </Text>
+                </View>
 
-                {topStudents.map((item, index) => (
-                    <View
-                        key={item.studentId}
-                        style={{
-                            marginTop: 10,
-                            padding: 12,
-                            backgroundColor: "white",
-                            borderRadius: 10,
-                            borderWidth: 1,
-                            borderColor: "#eee"
-                        }}
-                    >
-                        <Text>
-                            {item.rank}. {item.first_name} {item.last_name}
-                        </Text>
+                {/* TREND CHART */}
+                <View style={styles.card}>
 
-                        <Text style={{ fontWeight: "bold" }}>
-                            Score: {item.score}%
-                        </Text>
+                    <Text style={styles.sectionTitle}>📈 Ödev Performans Eğilimi </Text>
+
+                    <Text style={styles.legend}>
+                        Her bir bar bir ödevin ortalama skorunu temsil eder.
+                    </Text>
+
+                    <View style={styles.chart}>
+
+                        {trendData.map((item) => {
+                            const heightPercent = (item.averageScore / maxValue) * 100;
+
+                            return (
+                                <View key={item.assignmentId} style={styles.barWrapper}>
+
+                                    {/* SCORE LABEL */}
+                                    <Text style={styles.barValue}>
+                                        {item.averageScore}%
+                                    </Text>
+
+                                    {/* BAR */}
+                                    <View
+                                        style={[
+                                            styles.bar,
+                                            { height: `${heightPercent}%` }
+                                        ]}
+                                    />
+
+                                    {/* TITLE */}
+                                    <Text
+                                        style={styles.barLabel}
+                                        numberOfLines={2}
+                                    >
+                                        {item.title}
+                                    </Text>
+
+                                </View>
+                            );
+                        })}
+
                     </View>
-                ))}
-            </View>
 
-            {/* TREND PREVIEW */}
-            <View style={{ marginTop: 20 }}>
+                </View>
 
-                <Text style={{ fontWeight: "bold", fontSize: 16 }}>
-                    📈 Class Trend (Last 5 Assignments)
-                </Text>
+                {/* TOP STUDENTS */}
+                <View style={styles.section}>
+                    <Text style={styles.sectionTitle}>🏆 Öğrenci İlk Üç</Text>
 
-                {classPerformanceTrend?.assignments?.map((item) => (
-                    <View
-                        key={item.assignmentId}
-                        style={{
-                            marginTop: 8,
-                            padding: 10,
-                            backgroundColor: "#fff",
-                            borderRadius: 8
-                        }}
+                    {topStudents.map((item) => (
+                        <View key={item.studentId} style={styles.listCard}>
+                            <Text style={styles.studentName}>
+                                {item.rank}. {item.first_name} {item.last_name}
+                            </Text>
+                            <Text style={styles.studentScore}>
+                                Score: {item.score}%
+                            </Text>
+                        </View>
+                    ))}
+                </View>
+
+                {/* BUTTONS */}
+                <View style={{ marginTop: 20 }}>
+                    <TouchableOpacity
+                        onPress={() =>
+                            router.push(`/teacher/class/${classID}/analytics/leaderboard`)
+                        }
+                        style={styles.button}
                     >
-                        <Text>{item.title}</Text>
-                        <Text>Average: {item.averageScore}%</Text>
-                    </View>
-                ))}
-            </View>
+                        <Text style={styles.buttonText}>Sınıf Sıralamasını Görüntüle</Text>
+                    </TouchableOpacity>
 
-            {/* NAVIGATION BUTTONS */}
-            <View style={{ marginTop: 30 }}>
+                    <TouchableOpacity
+                        onPress={() =>
+                            router.push(`/teacher/class/${classID}/analytics/performance`)
+                        }
+                        style={styles.button}
+                    >
+                        <Text style={styles.buttonText}>Performans Analizi</Text>
+                    </TouchableOpacity>
 
-                <TouchableOpacity
-                    onPress={() =>
-                        router.push(`/teacher/class/${classID}/analytics/leaderboard`)
-                    }
-                    style={styles.btn}
-                >
-                    <Text style={styles.btnText}>View Full Leaderboard</Text>
-                </TouchableOpacity>
 
-                <TouchableOpacity
-                    onPress={() =>
-                        router.push(`/teacher/class/${classID}/analytics/performance`)
-                    }
-                    style={styles.btn}
-                >
-                    <Text style={styles.btnText}>Performance Analysis</Text>
-                </TouchableOpacity>
+                </View>
 
-                <TouchableOpacity
-                    onPress={() =>
-                        router.push(`/teacher/class/${classID}/analytics/questions`)
-                    }
-                    style={styles.btn}
-                >
-                    <Text style={styles.btnText}>Wrong Questions</Text>
-                </TouchableOpacity>
-
-            </View>
-
-        </ScrollView>
+            </ScrollView>
+        </View>
     );
 }
 
 const styles = StyleSheet.create({
 
-    btn: {
-        marginTop: 10,
-        padding: 14,
-        backgroundColor: "#1e88e5",
-        borderRadius: 10,
-        alignItems: "center"
+    page: {
+        flex: 1,
+        backgroundColor: "#F8FAFC"
     },
 
-    btnText: {
-        color: "white",
-        fontWeight: "bold"
-    }
+    /* HEADER */
+    header: {
+        backgroundColor: "#1087BB",
+        paddingTop: 45,
+        paddingBottom: 18,
+        paddingHorizontal: 16,
+        flexDirection: "row",
+        alignItems: "center",
+        gap: 10,
+        borderBottomLeftRadius: 20,
+        borderBottomRightRadius: 20
+    },
 
+    backBtn: {
+        marginRight: 6
+    },
+
+    headerTitle: {
+        color: "white",
+        fontSize: 20,
+        fontWeight: "bold"
+    },
+
+    headerSub: {
+        color: "white",
+        fontSize: 12,
+        opacity: 0.9
+    },
+
+    container: {
+        padding: 16,
+        paddingBottom: 40
+    },
+
+    /* CARD */
+    card: {
+        backgroundColor: "white",
+        padding: 16,
+        borderRadius: 16,
+        marginTop: 16,
+        shadowColor: "#000",
+        shadowOpacity: 0.06,
+        shadowRadius: 10,
+        elevation: 3
+    },
+
+    cardLabel: {
+        fontSize: 14,
+        color: "#64748B"
+    },
+
+    cardValue: {
+        fontSize: 30,
+        fontWeight: "bold",
+        color: "#0F172A",
+        marginTop: 6
+    },
+
+    sectionTitle: {
+        fontSize: 16,
+        fontWeight: "700",
+        color: "#0F172A",
+        marginBottom: 6
+    },
+
+    legend: {
+        fontSize: 12,
+        color: "#64748B",
+        marginBottom: 12,
+        paddingBottom:12
+    },
+
+    /* CHART */
+    chart: {
+        height: 200,
+        flexDirection: "row",
+        alignItems: "flex-end",
+        justifyContent: "space-between",
+        marginTop: 10
+    },
+
+    barWrapper: {
+        flex: 1,
+        alignItems: "center",
+        justifyContent: "flex-end",
+        paddingHorizontal: 2
+    },
+
+    bar: {
+        width: 14,
+        backgroundColor: "#1087BB",
+        borderRadius: 6,
+        minHeight: 10
+    },
+
+    barValue: {
+        fontSize: 10,
+        color: "#0F172A",
+        marginBottom: 4,
+        fontWeight: "600"
+    },
+
+    barLabel: {
+        fontSize: 10,
+        color: "#64748B",
+        marginTop: 6,
+        textAlign: "center"
+    },
+
+    /* LIST */
+    section: {
+        marginTop: 20
+    },
+
+    listCard: {
+        backgroundColor: "white",
+        padding: 14,
+        borderRadius: 12,
+        marginBottom: 10,
+        borderWidth: 1,
+        borderColor: "#EEF2F7"
+    },
+
+    studentName: {
+        fontSize: 14,
+        fontWeight: "600",
+        color: "#0F172A"
+    },
+
+    studentScore: {
+        marginTop: 4,
+        fontSize: 13,
+        color: "#64748B"
+    },
+
+    /* BUTTON */
+    button: {
+        backgroundColor: "#1087BB",
+        padding: 14,
+        borderRadius: 12,
+        alignItems: "center",
+        marginTop: 10
+    },
+
+    buttonText: {
+        color: "white",
+        fontWeight: "600"
+    }
 });

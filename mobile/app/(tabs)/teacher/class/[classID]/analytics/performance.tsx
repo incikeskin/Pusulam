@@ -1,6 +1,7 @@
 import React, { useEffect } from "react";
-import {View, Text, ScrollView, TouchableOpacity} from "react-native";
-import {useLocalSearchParams, useRouter} from "expo-router";
+import { View, Text, ScrollView, TouchableOpacity, StyleSheet } from "react-native";
+import { useLocalSearchParams, useRouter } from "expo-router";
+import { Ionicons } from "@expo/vector-icons";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 
 import { fetchClassPerformanceTrend } from "@/store/analytics/analyticsThunks";
@@ -9,7 +10,8 @@ export default function PerformanceScreen() {
 
     const { classID } = useLocalSearchParams();
     const dispatch = useAppDispatch();
-    const classId = classID as string;
+    const router = useRouter();
+
     const { classPerformanceTrend } = useAppSelector(
         state => state.analytics
     );
@@ -18,119 +20,223 @@ export default function PerformanceScreen() {
         if (!classID) return;
         dispatch(fetchClassPerformanceTrend(classID as string));
     }, [classID]);
-    const router = useRouter();
+
     const data = classPerformanceTrend?.assignments || [];
     const trend = classPerformanceTrend?.trend;
 
     return (
-        <ScrollView style={{ flex: 1, padding: 16 }}>
+        <View style={styles.page}>
 
             {/* HEADER */}
-            <Text style={{ fontSize: 22, fontWeight: "bold" }}>
-                📈 Class Performance Trend
-            </Text>
-            <TouchableOpacity
-                onPress={() =>
-                    router.push(`/teacher/class/${classId}/analytics`)
-                }
-            >
-                <Text style={{ color: "white", fontWeight: "bold" }}>Geri</Text>
-            </TouchableOpacity>
-            {/* TREND STATUS */}
-            <View style={{
-                marginTop: 16,
-                padding: 14,
-                borderRadius: 10,
-                backgroundColor:
+            <View style={styles.header}>
+
+                <TouchableOpacity
+                    onPress={() => router.push(`/teacher/class/${classID}/analytics`)}
+                    style={styles.backBtn}
+                >
+                    <Ionicons name="chevron-back" size={24} color="white" />
+                </TouchableOpacity>
+
+                <View>
+                    <Text style={styles.headerTitle}>Performance Trend</Text>
+                    <Text style={styles.headerSub}>Sınıf zaman içi performansı</Text>
+                </View>
+
+            </View>
+
+            <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
+
+                {/* TREND STATUS */}
+                <View style={[
+                    styles.statusCard,
                     trend === "up"
-                        ? "#e8f5e9"
+                        ? { backgroundColor: "#E8F5E9" }
                         : trend === "down"
-                            ? "#ffebee"
-                            : "#f5f5f5"
-            }}>
-                <Text style={{ fontSize: 16 }}>
-                    Overall Trend:
-                </Text>
+                            ? { backgroundColor: "#FEE2E2" }
+                            : { backgroundColor: "#F1F5F9" }
+                ]}>
 
-                <Text style={{
-                    fontSize: 22,
-                    fontWeight: "bold",
-                    color:
+                    <Text style={styles.statusLabel}>Overall Trend</Text>
+
+                    <Text style={[
+                        styles.statusValue,
                         trend === "up"
-                            ? "green"
+                            ? { color: "#16A34A" }
                             : trend === "down"
-                                ? "red"
-                                : "gray"
-                }}>
-                    {trend === "up"
-                        ? "📈 Improving"
-                        : trend === "down"
-                            ? "📉 Declining"
-                            : "➡️ Stable"}
-                </Text>
-            </View>
+                                ? { color: "#DC2626" }
+                                : { color: "#64748B" }
+                    ]}>
+                        {trend === "up"
+                            ? "📈 Improving"
+                            : trend === "down"
+                                ? "📉 Declining"
+                                : "➡️ Stable"}
+                    </Text>
 
-            {/* LIST OF ASSIGNMENTS */}
-            <View style={{ marginTop: 20 }}>
+                </View>
 
-                <Text style={{ fontWeight: "bold", fontSize: 16 }}>
-                    Last 5 Assignments
-                </Text>
+                {/* ASSIGNMENTS */}
+                <View style={{ marginTop: 16 }}>
 
-                {data.map((item) => (
-                    <View
-                        key={item.assignmentId}
-                        style={{
-                            marginTop: 10,
-                            padding: 14,
-                            backgroundColor: "white",
-                            borderRadius: 10,
-                            borderWidth: 1,
-                            borderColor: "#eee"
-                        }}
-                    >
+                    <Text style={styles.sectionTitle}>
+                        📊 Last 5 Assignments
+                    </Text>
 
-                        <Text style={{ fontWeight: "bold" }}>
-                            {item.title}
-                        </Text>
+                    {data.map((item) => {
 
-                        <Text style={{ marginTop: 5 }}>
-                            Average Score: {item.averageScore}%
-                        </Text>
+                        const barColor =
+                            item.averageScore > 70
+                                ? "#22C55E"
+                                : item.averageScore > 40
+                                    ? "#F59E0B"
+                                    : "#EF4444";
 
-                        <Text style={{ fontSize: 12, color: "gray" }}>
-                            Participants: {item.participantCount}
-                        </Text>
+                        return (
+                            <View key={item.assignmentId} style={styles.card}>
 
-                        {/* BAR VISUAL */}
-                        <View
-                            style={{
-                                height: 6,
-                                backgroundColor: "#eee",
-                                borderRadius: 5,
-                                marginTop: 8
-                            }}
-                        >
-                            <View
-                                style={{
-                                    width: `${item.averageScore}%`,
-                                    height: 6,
-                                    backgroundColor:
-                                        item.averageScore > 70
-                                            ? "green"
-                                            : item.averageScore > 40
-                                                ? "orange"
-                                                : "red",
-                                    borderRadius: 5
-                                }}
-                            />
-                        </View>
+                                <Text style={styles.title}>
+                                    {item.title}
+                                </Text>
 
-                    </View>
-                ))}
+                                <Text style={styles.subtitle}>
+                                    Average Score: {item.averageScore}%
+                                </Text>
 
-            </View>
+                                <Text style={styles.meta}>
+                                    Participants: {item.participantCount}
+                                </Text>
 
-        </ScrollView>
+                                {/* PROGRESS BAR */}
+                                <View style={styles.progressBg}>
+                                    <View
+                                        style={[
+                                            styles.progressFill,
+                                            {
+                                                width: `${item.averageScore}%`,
+                                                backgroundColor: barColor
+                                            }
+                                        ]}
+                                    />
+                                </View>
+
+                            </View>
+                        );
+                    })}
+
+                </View>
+
+            </ScrollView>
+        </View>
     );
 }
+const styles = StyleSheet.create({
+
+    page: {
+        flex: 1,
+        backgroundColor: "#F8FAFC"
+    },
+
+    /* HEADER */
+    header: {
+        backgroundColor: "#1087BB",
+        paddingTop: 45,
+        paddingBottom: 18,
+        paddingHorizontal: 16,
+        flexDirection: "row",
+        alignItems: "center",
+        gap: 10,
+        borderBottomLeftRadius: 20,
+        borderBottomRightRadius: 20
+    },
+
+    backBtn: {
+        marginRight: 6
+    },
+
+    headerTitle: {
+        color: "white",
+        fontSize: 20,
+        fontWeight: "bold"
+    },
+
+    headerSub: {
+        color: "white",
+        fontSize: 12,
+        opacity: 0.9
+    },
+
+    container: {
+        padding: 16,
+        paddingBottom: 40
+    },
+
+    /* STATUS CARD */
+    statusCard: {
+        padding: 16,
+        borderRadius: 16,
+        marginTop: 16
+    },
+
+    statusLabel: {
+        fontSize: 14,
+        color: "#64748B"
+    },
+
+    statusValue: {
+        fontSize: 22,
+        fontWeight: "bold",
+        marginTop: 6
+    },
+
+    /* SECTION */
+    sectionTitle: {
+        fontSize: 16,
+        fontWeight: "700",
+        color: "#0F172A",
+        marginBottom: 10
+    },
+
+    /* CARD */
+    card: {
+        backgroundColor: "white",
+        padding: 14,
+        borderRadius: 14,
+        marginBottom: 12,
+        shadowColor: "#000",
+        shadowOpacity: 0.05,
+        shadowRadius: 8,
+        elevation: 2
+    },
+
+    title: {
+        fontSize: 15,
+        fontWeight: "600",
+        color: "#0F172A"
+    },
+
+    subtitle: {
+        fontSize: 13,
+        color: "#64748B",
+        marginTop: 4
+    },
+
+    meta: {
+        fontSize: 12,
+        color: "#94A3B8",
+        marginTop: 2
+    },
+
+    /* PROGRESS */
+    progressBg: {
+        height: 8,
+        backgroundColor: "#E2E8F0",
+        borderRadius: 10,
+        marginTop: 10,
+        overflow: "hidden"
+    },
+
+    progressFill: {
+        height: 8,
+        borderRadius: 10
+    }
+});
