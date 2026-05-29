@@ -548,7 +548,226 @@ router.get("/student-performance-trend/:classId/:studentId", async (req, res) =>
   }
 });
 
+// 📈 SINIF SON 5 ÖDEV PERFORMANS TRENDİ
+router.get("/class-performance-trend/:classId", async (req, res) => {
+  try {
+    const { classId } = req.params;
 
+    // Son 5 ödev
+    const assignments = await Assignments.find({
+      class: classId
+    })
+        .sort({ created_at: -1 })
+        .limit(5);
+
+    if (!assignments.length) {
+      throw new CustomError(
+          Enum.HTTP_CODES.NOT_FOUND,
+          "Not Found",
+          "No assignments found"
+      );
+    }
+
+    const trendData = [];
+
+    // eski -> yeni sıralama
+    const orderedAssignments = assignments.reverse();
+
+    for (const assignment of orderedAssignments) {
+
+      // Bu ödeve ait tüm cevaplar
+      const answers = await StudentAnswers.find({
+        assignment: assignment._id
+      });
+
+      // öğrenci bazlı skor map
+      const studentMap = {};
+
+      answers.forEach(answer => {
+        const sid = answer.student.toString();
+
+        if (!studentMap[sid]) {
+          studentMap[sid] = {
+            correct: 0,
+            total: 0
+          };
+        }
+
+        studentMap[sid].total += 1;
+
+        if (answer.is_correct) {
+          studentMap[sid].correct += 1;
+        }
+      });
+
+      // çözen öğrencilerin skorları
+      const studentScores = Object.values(studentMap).map(data =>
+          Math.round((data.correct / data.total) * 100)
+      );
+
+      // kimse çözmediyse
+      const average =
+          studentScores.length > 0
+              ? Math.round(
+                  studentScores.reduce((a, b) => a + b, 0) /
+                  studentScores.length
+              )
+              : 0;
+
+      trendData.push({
+        assignmentId: assignment._id,
+        title: assignment.title,
+        averageScore: average,
+        participantCount: studentScores.length
+      });
+    }
+
+    // Trend analizi
+    let trend = "stable";
+
+    if (trendData.length >= 2) {
+
+      const firstAvg = trendData[0].averageScore;
+      const lastAvg = trendData[trendData.length - 1].averageScore;
+
+      if (lastAvg > firstAvg) {
+        trend = "up";
+      } else if (lastAvg < firstAvg) {
+        trend = "down";
+      }
+    }
+
+    res.json(Response.successResponse({
+      classId,
+      trend,
+      assignments: trendData
+    }));
+
+  } catch (err) {
+    const errorResponse = Response.errorResponse(err);
+    res.status(errorResponse.code).json(errorResponse);
+  }
+});
+
+// 🏆 GENEL LEADERBOARD (TÜM ÖDEVLER)
+router.get("/general-leaderboard/:classId", async (req, res) => {
+  try {
+
+    const { classId } = req.params;
+
+    // 1️⃣ Sınıftaki öğrenciler
+    const studentClasses = await StudentClasses.find({
+      class: classId
+    })
+        .populate("student", "first_name last_name")
+        .select("student");
+
+    if (!studentClasses.length) {
+      throw new CustomError(
+          Enum.HTTP_CODES.NOT_FOUND,
+          "Not Found",
+          "No students found in class"
+      );
+    }
+
+    const studentIds = studentClasses.map(
+        sc => sc.student._id.toString()
+    );
+
+    // 2️⃣ Sınıfa ait tüm ödevler
+    const assignments = await Assignments.find({
+      class: classId
+    }).select("_id");
+
+    const assignmentIds = assignments.map(
+        a => a._id
+    );
+
+    // 3️⃣ Tüm cevaplar
+    const answers = await StudentAnswers.find({
+      assignment: { $in: assignmentIds },
+      student: { $in: studentIds }
+    });
+
+    // 4️⃣ Öğrenci bazlı score map
+    const scoreMap = {};
+
+    studentClasses.forEach(sc => {
+
+      const sid = sc.student._id.toString();
+
+      scoreMap[sid] = {
+        studentId: sid,
+        first_name: sc.student.first_name,
+        last_name: sc.student.last_name,
+        totalCorrect: 0,
+        totalAnswered: 0
+      };
+    });
+
+    // 5️⃣ Cevapları işle
+    answers.forEach(answer => {
+
+      const sid = answer.student.toString();
+
+      if (!scoreMap[sid]) return;
+
+      scoreMap[sid].totalAnswered += 1;
+
+      if (answer.is_correct) {
+        scoreMap[sid].totalCorrect += 1;
+      }
+    });
+
+    // 6️⃣ Score hesapla
+    const leaderboard = Object.values(scoreMap).map(student => {
+
+      const score =
+          student.totalAnswered > 0
+              ? Math.round(
+                  (student.totalCorrect / student.totalAnswered) * 100
+              )
+              : 0;
+
+      return {
+        ...student,
+        score
+      };
+    });
+
+    // 7️⃣ Sıralama
+    leaderboard.sort((a, b) => b.score - a.score);
+
+    // 8️⃣ Rank ekle
+    leaderboard.forEach((student, index) => {
+      student.rank = index + 1;
+    });
+
+    // 9️⃣ Sınıf ortalaması
+    const classAverage =
+        leaderboard.length > 0
+            ? Math.round(
+                leaderboard.reduce(
+                    (sum, s) => sum + s.score,
+                    0
+                ) / leaderboard.length
+            )
+            : 0;
+
+    res.json(Response.successResponse({
+      classId,
+      classAverage,
+      totalStudents: leaderboard.length,
+      leaderboard
+    }));
+
+  } catch (err) {
+
+    const errorResponse = Response.errorResponse(err);
+
+    res.status(errorResponse.code).json(errorResponse);
+  }
+});
 
 
 
