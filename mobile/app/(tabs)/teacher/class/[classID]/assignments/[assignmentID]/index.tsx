@@ -26,7 +26,7 @@ import {
     fetchStudentAnswers,
     fetchClassRankingList,
 } from "@/store/assignmentResult/assignmentResultThunks";
-
+import { Picker } from "@react-native-picker/picker";
 import { fetchClassStudents } from "@/store/classDetail/classDetailThunks";
 
 export default function AssignmentDetailScreen() {
@@ -319,6 +319,24 @@ const styles = StyleSheet.create({
     safe: { flex: 1, backgroundColor: "#f2f4f7" },
     container: { padding: 12 },
 
+    filterContainer: {
+        marginBottom: 12,
+    },
+
+    filterLabel: {
+        fontWeight: "600",
+        marginBottom: 4,
+        marginTop: 8,
+    },
+
+    pickerWrapper: {
+        backgroundColor: "white",
+        borderRadius: 10,
+        borderWidth: 1,
+        borderColor: "#ddd",
+        height: 50,
+        overflow: "hidden",
+    },
     header: {
         backgroundColor: "#1087BB",
         padding: 16,

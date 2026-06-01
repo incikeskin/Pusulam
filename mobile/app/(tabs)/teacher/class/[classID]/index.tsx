@@ -124,6 +124,14 @@ export default function ClassDetailScreen() {
                 style={styles.container}
                 showsVerticalScrollIndicator={false}
             >
+                <TouchableOpacity
+                    style={styles.backButton}
+                    onPress={() =>
+                        router.push(`/teacher`)
+                    }
+                >
+                    <Text>Geri</Text>
+                </TouchableOpacity>
                 {/* HEADER */}
                 <View style={styles.header}>
                     <View style={styles.headerTop}>
@@ -295,7 +303,8 @@ export default function ClassDetailScreen() {
 const styles = StyleSheet.create({
     safe: {
         flex: 1,
-        backgroundColor: "#f2f4f7"
+        backgroundColor: "#f2f4f7",
+        paddingTop: 20,
     },
     center: {
         flex: 1,
@@ -306,6 +315,7 @@ const styles = StyleSheet.create({
     container: {
         paddingHorizontal: 16
     },
+    backButton: { marginBottom: 10 },
 
     header: {
         backgroundColor: "#1087BB",

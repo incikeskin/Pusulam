@@ -186,8 +186,8 @@ const styles = StyleSheet.create({
         backgroundColor: "#1087BB",
         paddingHorizontal: 15,
         paddingVertical: 10,
-        paddingTop: 20,
-        marginBottom: 16,
+        paddingTop: 50,
+        marginBottom: 5,
     },
 
     logo: {

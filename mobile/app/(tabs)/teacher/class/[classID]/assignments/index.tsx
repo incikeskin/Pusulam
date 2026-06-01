@@ -11,7 +11,7 @@ import {
 } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
-
+import { Picker } from "@react-native-picker/picker";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 
 import {
@@ -146,6 +146,8 @@ export default function CreateAssignmentPage() {
                 );
             });
     };
+    const [categoryDropdownOpen, setCategoryDropdownOpen] = useState(false);
+    const [difficultyDropdownOpen, setDifficultyDropdownOpen] = useState(false);
 
     return (
         <View style={styles.container}>
@@ -180,6 +182,7 @@ export default function CreateAssignmentPage() {
 
                     <TextInput
                         placeholder="Ödev Başlığı"
+                        placeholderTextColor="#6B7280"
                         style={styles.input}
                         value={form.title}
                         onChangeText={(text) =>
@@ -194,6 +197,7 @@ export default function CreateAssignmentPage() {
 
                     <TextInput
                         placeholder="Ödev Açıklaması"
+                        placeholderTextColor="#6B7280"
                         style={[
                             styles.input,
                             styles.textarea,
@@ -212,6 +216,7 @@ export default function CreateAssignmentPage() {
 
                     <TextInput
                         placeholder="Teslim Tarihi (2026-05-10)"
+                        placeholderTextColor="#6B7280"
                         style={styles.input}
                         value={form.due_date}
                         onChangeText={(text) =>
@@ -232,43 +237,40 @@ export default function CreateAssignmentPage() {
                     </Text>
 
                     {/* CATEGORY */}
-                    <ScrollView
-                        horizontal
-                        showsHorizontalScrollIndicator={
-                            false
-                        }
-                        style={{ marginBottom: 12 }}
-                    >
-                        {categories.map((cat) => (
-                            <TouchableOpacity
-                                key={cat._id}
-                                onPress={() =>
-                                    dispatch(
-                                        setSelectedCategory(
-                                            cat._id
-                                        )
-                                    )
-                                }
-                                style={[
-                                    styles.filterButton,
-                                    selectedCategoryId ===
-                                    cat._id &&
-                                    styles.filterButtonActive,
-                                ]}
-                            >
-                                <Text
-                                    style={[
-                                        styles.filterText,
-                                        selectedCategoryId ===
-                                        cat._id &&
-                                        styles.filterTextActive,
-                                    ]}
-                                >
-                                    {cat.name}
-                                </Text>
-                            </TouchableOpacity>
-                        ))}
-                    </ScrollView>
+                    {/* CATEGORY DROPDOWN */}
+                    <View style={styles.dropdownWrapper}>
+                        <TouchableOpacity
+                            style={styles.dropdown}
+                            onPress={() => setCategoryDropdownOpen(!categoryDropdownOpen)}
+                        >
+                            <Text style={styles.dropdownText}>
+                                {selectedCategoryId
+                                    ? categories.find(c => c._id === selectedCategoryId)?.name
+                                    : "Kategori Seç"}
+                            </Text>
+
+                            <Ionicons name="chevron-down" size={20} color="#334155" />
+                        </TouchableOpacity>
+
+                        {categoryDropdownOpen && (
+                            <View style={styles.dropdownList}>
+                                {categories.map((cat) => (
+                                    <TouchableOpacity
+                                        key={cat._id}
+                                        style={styles.dropdownItem}
+                                        onPress={() => {
+                                            dispatch(setSelectedCategory(cat._id));
+                                            setCategoryDropdownOpen(false);
+                                        }}
+                                    >
+                                        <Text style={styles.dropdownItemText}>
+                                            {cat.name}
+                                        </Text>
+                                    </TouchableOpacity>
+                                ))}
+                            </View>
+                        )}
+                    </View>
 
                     {/* DIFFICULTY */}
                     <View style={styles.difficultyRow}>
@@ -384,6 +386,7 @@ export default function CreateAssignmentPage() {
 
                     <TextInput
                         placeholder="Soru metni"
+                        placeholderTextColor="#6B7280"
                         style={[
                             styles.input,
                             styles.textarea,
@@ -394,38 +397,42 @@ export default function CreateAssignmentPage() {
                     />
 
                     {/* CATEGORY SELECT */}
-                    <ScrollView
-                        horizontal
-                        showsHorizontalScrollIndicator={
-                            false
-                        }
-                        style={{ marginBottom: 12 }}
-                    >
-                        {categories.map((cat) => (
-                            <TouchableOpacity
-                                key={cat._id}
-                                onPress={() =>
-                                    setCategoryId(cat._id)
-                                }
-                                style={[
-                                    styles.filterButton,
-                                    categoryId === cat._id &&
-                                    styles.filterButtonActive,
-                                ]}
-                            >
-                                <Text
-                                    style={[
-                                        styles.filterText,
-                                        categoryId ===
-                                        cat._id &&
-                                        styles.filterTextActive,
-                                    ]}
-                                >
-                                    {cat.name}
-                                </Text>
-                            </TouchableOpacity>
-                        ))}
-                    </ScrollView>
+                    {/* CATEGORY DROPDOWN (NEW QUESTION) */}
+                    <View style={styles.dropdownWrapper}>
+                        <TouchableOpacity
+                            style={styles.dropdown}
+                            onPress={() =>
+                                setCategoryDropdownOpen((prev) => !prev)
+                            }
+                        >
+                            <Text style={styles.dropdownText}>
+                                {categoryId
+                                    ? categories.find(c => c._id === categoryId)?.name
+                                    : "Kategori Seç"}
+                            </Text>
+
+                            <Ionicons name="chevron-down" size={20} color="#334155" />
+                        </TouchableOpacity>
+
+                        {categoryDropdownOpen && (
+                            <View style={styles.dropdownList}>
+                                {categories.map((cat) => (
+                                    <TouchableOpacity
+                                        key={cat._id}
+                                        style={styles.dropdownItem}
+                                        onPress={() => {
+                                            setCategoryId(cat._id); // 🔥 local state
+                                            setCategoryDropdownOpen(false);
+                                        }}
+                                    >
+                                        <Text style={styles.dropdownItemText}>
+                                            {cat.name}
+                                        </Text>
+                                    </TouchableOpacity>
+                                ))}
+                            </View>
+                        )}
+                    </View>
 
                     {/* DIFFICULTY */}
                     <View style={styles.difficultyRow}>
@@ -503,6 +510,7 @@ export default function CreateAssignmentPage() {
                                 placeholder={`Şık ${String.fromCharCode(
                                     65 + i
                                 )}`}
+                                placeholderTextColor="#6B7280"
                                 style={[
                                     styles.input,
                                     {
@@ -723,6 +731,49 @@ const styles = StyleSheet.create({
         shadowRadius: 10,
         elevation: 3,
     },
+    dropdownWrapper: {
+        marginBottom: 12,
+        position: "relative",
+    },
+
+    dropdown: {
+        flexDirection: "row",
+        justifyContent: "space-between",
+        alignItems: "center",
+        borderWidth: 1,
+        borderColor: "#E2E8F0",
+        borderRadius: 12,
+        padding: 12,
+        backgroundColor: "#FFF",
+    },
+
+    dropdownText: {
+        color: "#334155",
+        fontWeight: "600",
+    },
+
+    dropdownList: {
+        marginTop: 6,
+        borderWidth: 1,
+        borderColor: "#E2E8F0",
+        borderRadius: 12,
+        backgroundColor: "#FFF",
+        overflow: "hidden",
+        position: "absolute",
+        width: "100%",
+        zIndex: 999,
+    },
+
+    dropdownItem: {
+        padding: 12,
+        borderBottomWidth: 1,
+        borderBottomColor: "#F1F5F9",
+    },
+
+    dropdownItemText: {
+        color: "#0F172A",
+        fontWeight: "500",
+    },
 
     cardTitle: {
         fontSize: 18,
@@ -739,6 +790,7 @@ const styles = StyleSheet.create({
         fontSize: 14,
         marginBottom: 12,
         backgroundColor: "#FFF",
+        color: "#0F172A", // yazı rengi
     },
 
     textarea: {
