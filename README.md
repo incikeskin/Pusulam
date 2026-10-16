@@ -1,1 +1,1 @@
-# Pusulam wev ve mobil tabanlı başarı takip sistemi
+# Pusulam web ve mobil tabanlı başarı takip sistemi
