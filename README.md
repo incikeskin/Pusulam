@@ -1,1 +1,1 @@
-# bitirme_deneme
+# Pusulam wev ve mobil tabanlı başarı takip sistemi
